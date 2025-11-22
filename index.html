@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="worker-src blob: 'self' https://cesium.com; child-src blob: 'self' https://cesium.com;"
+    />
+    <title>3D Model with KMZ Layers</title>
+
+    <script src="https://cesium.com/downloads/cesiumjs/releases/1.104/Build/Cesium/Cesium.js"></script>
+    <link
+      href="https://cesium.com/downloads/cesiumjs/releases/1.104/Build/Cesium/Widgets/widgets.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/loaders/OBJLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/loaders/MTLLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/exporters/GLTFExporter.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    
+    <div id="loading-overlay" style="display: none">
+      <div class="spinner"></div>
+      <p id="loading-text">Processing model...</p>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
+      <div id="memory-warning">
+        <strong>Warning:</strong> Loading large models may cause performance
+        issues on low-memory devices.
+      </div>
+    </div>
+    
+    <div id="sidebar">
+        <h2>🗺️ Model & Layer Controls</h2>
+  
+        <div class="input-group" id="search-container">
+          <label for="searchInput">🔍 Search Property</label>
+          <input
+            type="text"
+            id="searchInput"
+            placeholder="e.g., H101, Owner Name, Phone..."
+            oninput="debounce(searchProperties, 300)()"
+            onfocus="searchProperties()"
+            autocomplete="off"
+          />
+          <button
+            class="control-button"
+            onclick="searchProperties()"
+            style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%)"
+          >
+            Search
+          </button>
+          <div id="search-results"></div>
+        </div>
+        <h4 style="color: #e67e22">Optimized Large Model Support</h4>
+  
+        <div id="upload-area">
+          <label for="fileInput" class="custom-file-upload"
+            >📍 Location File</label
+          >
+          <input type="file" id="fileInput" accept=".txt" />
+  
+          <label for="modelUpload" class="custom-file-upload"
+            >🎯 Choose Model Files</label
+          >
+          <input
+            type="file"
+            id="modelUpload"
+            multiple
+            accept=".obj,.mtl,.glb,.gltf,.dae,.jpg,.jpeg,.png,.bmp,.tga"
+          />
+  
+          <div id="file-status">
+            <strong>File Status:</strong><br />
+            <span id="status-text">No files uploaded</span>
+          </div>
+  
+          <div id="debug-info" class="debug-section" style="display: none">
+            <strong>Debug Info:</strong><br />
+            <span id="debug-text"></span>
+          </div>
+  
+          <h4>📋 Instructions:</h4>
+          <h5>1. Select Georeferencing.txt file</h5>
+          <h5>2. Select .obj, .mtl, and texture files together</h5>
+          <h5>3. Supported: OBJ, MTL, GLB, GLTF, DAE</h5>
+        </div>
+  
+        <div class="input-group layer-control">
+          <label>🗂️ KMZ Layers</label>
+  
+          <div class="layer-toggle" onclick="toggleLayer('model')">
+            <input
+              type="checkbox"
+              id="modelToggle"
+              checked
+              onclick="event.stopPropagation(); toggleLayer('model')"
+            />
+            <label for="modelToggle">3D Model</label>
+            <span class="layer-status status-loaded" id="modelStatus"
+              >Loaded</span
+            >
+          </div>
+  
+          <div style="padding-left: 30px; margin-bottom: 10px">
+            <label style="font-size: 11px; color: #95a5a6">Model Opacity</label>
+            <input
+              type="range"
+              id="modelOpacity"
+              min="0"
+              max="100"
+              value="100"
+              class="opacity-slider"
+              oninput="updateModelOpacity(this.value)"
+            />
+            <div class="slider-label">
+              <span>Transparent</span>
+              <span id="modelOpacityValue">100%</span>
+              <span>Opaque</span>
+            </div>
+          </div>
+  
+          <div class="layer-toggle" onclick="toggleLayer('roads')">
+            <input
+              type="checkbox"
+              id="roadsToggle"
+              onclick="event.stopPropagation(); toggleLayer('roads')"
+            />
+            <label for="roadsToggle">Roads (paths.kmz)</label>
+            <span class="layer-status status-loading" id="roadsStatus"
+              >Loading...</span
+            >
+          </div>
+  
+          <div class="layer-toggle" onclick="toggleLayer('houses')">
+            <input
+              type="checkbox"
+              id="housesToggle"
+              onclick="event.stopPropagation(); toggleLayer('houses')"
+            />
+            <label for="housesToggle">Houses (HOUSES polygon.kmz)</label>
+            <span class="layer-status status-loading" id="housesStatus"
+              >Loading...</span
+            >
+          </div>
+        </div>
+  
+        <div class="input-group">
+          <label>🌐 Position Controls</label>
+          <label>Longitude:</label>
+          <input type="number" id="longitude" value="79.109438" step="0.000001" />
+          <label>Latitude:</label>
+          <input type="number" id="latitude" value="21.096409" step="0.000001" />
+          <label>Height:</label>
+          <input type="number" id="height" value="0" />
+        </div>
+  
+        <div class="input-group">
+          <label>🔄 Rotation Controls</label>
+          <label>Heading:</label>
+          <input type="number" id="heading" value="21" />
+          <label>Pitch:</label>
+          <input type="number" id="pitch" value="92" />
+          <label>Roll:</label>
+          <input type="number" id="roll" value="14" />
+        </div>
+  
+        <div class="input-group">
+          <label>📏 Scale Control</label>
+          <input
+            type="number"
+            id="scale"
+            value="50.1"
+            step="0.1"
+            min="0.1"
+            max="100"
+          />
+        </div>
+  
+        <div class="input-group">
+          <button class="control-button" onclick="resetToGroundLevel()">
+            📍 Ground Level
+          </button>
+          <button class="control-button" onclick="centerOnModel()">
+            🎯 Center View
+          </button>
+          <button class="control-button" onclick="optimizeMemory()">
+            ⚡ Free Memory
+          </button>
+        </div>
+      </div>
+  
+      <div id="cesiumContainer"></div>
+
+    <script src="ptax_data.js"></script>
+
+    <script src="js/1_config_globals.js"></script>
+    <script src="js/2_ui_helpers.js"></script>
+    <script src="js/3_utils.js"></script>
+    <script src="js/4_model_manager.js"></script>
+    <script src="js/5_layer_manager.js"></script>
+    <script src="js/6_search_feature.js"></script>
+    
+    <script src="js/7_main.js"></script>
+
+  </body>
+</html>
