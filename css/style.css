@@ -1,0 +1,497 @@
+/* Aapke original code se saara CSS */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  overflow: hidden;
+}
+
+#cesiumContainer {
+  width: 100%;
+  height: 100vh;
+}
+
+#sidebar {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: 320px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: rgba(30, 30, 30, 0.95);
+  padding: 20px;
+  border-radius: 12px;
+  color: #fff;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  z-index: 1000;
+  backdrop-filter: blur(10px);
+}
+
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  overflow: hidden;
+}
+
+#cesiumContainer {
+  width: 100%;
+  height: 100vh;
+}
+
+#sidebar {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: 320px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: rgba(30, 30, 30, 0.95);
+  padding: 20px;
+  border-radius: 12px;
+  color: #fff;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  z-index: 1000;
+  backdrop-filter: blur(10px);
+}
+
+#sidebar h2 {
+  margin-bottom: 15px;
+  color: #3498db;
+  font-size: 20px;
+  border-bottom: 2px solid #3498db;
+  padding-bottom: 8px;
+}
+
+#sidebar h4 {
+  margin: 15px 0 10px 0;
+  color: #e67e22;
+  font-size: 14px;
+}
+
+#sidebar h5 {
+  margin: 8px 0;
+  color: #95a5a6;
+  font-size: 12px;
+  font-weight: normal;
+}
+
+.input-group {
+  margin-bottom: 20px;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #ecf0f1;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.input-group input[type="number"] {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.3);
+  color: #fff;
+  font-size: 14px;
+}
+
+.control-button {
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.control-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.control-button:active {
+  transform: translateY(0);
+}
+
+.custom-file-upload {
+  display: block;
+  padding: 12px;
+  margin: 10px 0;
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: center;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.custom-file-upload:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(245, 87, 108, 0.4);
+}
+
+input[type="file"] {
+  display: none;
+}
+
+#upload-area {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border: 2px dashed rgba(255, 255, 255, 0.2);
+}
+
+#file-status {
+  margin-top: 15px;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.file-found {
+  color: #2ecc71;
+}
+
+.file-missing {
+  color: #e74c3c;
+}
+
+#loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+}
+
+.spinner {
+  width: 60px;
+  height: 60px;
+  border: 5px solid rgba(255, 255, 255, 0.1);
+  border-top: 5px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+#loading-text {
+  margin-top: 20px;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.progress-bar {
+  width: 300px;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  margin-top: 20px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #3498db, #2ecc71);
+  width: 0%;
+  transition: width 0.3s ease;
+}
+
+#memory-warning {
+  margin-top: 20px;
+  padding: 15px;
+  background: rgba(231, 76, 60, 0.2);
+  border: 1px solid #e74c3c;
+  border-radius: 6px;
+  color: #fff;
+  max-width: 400px;
+  text-align: center;
+}
+
+.debug-section {
+  margin-top: 15px;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 6px;
+  font-size: 11px;
+  color: #95a5a6;
+  line-height: 1.6;
+}
+
+/* KMZ Layer Controls */
+.layer-control {
+  background: rgba(52, 152, 219, 0.1);
+  border: 1px solid rgba(52, 152, 219, 0.3);
+}
+
+.layer-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  margin: 8px 0;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.layer-toggle:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.layer-toggle input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+.layer-toggle label {
+  flex-grow: 1;
+  margin: 0 10px;
+  cursor: pointer;
+  color: #ecf0f1;
+}
+
+.layer-status {
+  font-size: 10px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.status-loaded {
+  color: #2ecc71;
+}
+
+.status-loading {
+  color: #f39c12;
+}
+
+.status-error {
+  color: #e74c3c;
+}
+
+/* Opacity slider */
+.opacity-slider {
+  width: 100%;
+  margin: 10px 0;
+}
+
+input[type="range"] {
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.2);
+  outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #3498db;
+  cursor: pointer;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #3498db;
+  cursor: pointer;
+  border: none;
+}
+
+.slider-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #95a5a6;
+  margin-top: 5px;
+}
+
+/* --- NEW CSS FOR PTAX DATA INFOBOX --- */
+
+/* Cesium ke default InfoBox ko bada karein */
+.cesium-infoBox {
+  max-width: 500px;
+  /* Box ko choda karein */
+  max-height: 60vh;
+  /* Height limit karein */
+}
+
+.cesium-infoBox-content {
+  max-height: calc(60vh - 40px);
+  /* Content ki height */
+  overflow-y: auto;
+  /* Vertical scroll add karein */
+  -webkit-overflow-scrolling: touch;
+  /* Smooth scroll on mobile */
+}
+
+/* Apne content ke liye custom styles */
+.ptax-infobox {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+  padding: 5px;
+  word-break: break-word;
+  /* Lambe text ko break karein */
+}
+
+.ptax-infobox h3 {
+  border-bottom: 2px solid #3498db;
+  padding-bottom: 5px;
+  margin-top: 0;
+  color: #333;
+  font-size: 16px;
+}
+
+.ptax-infobox .table-container {
+  width: 100%;
+  max-height: 400px;
+  /* Table ko scrollable banayein */
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.ptax-infobox .property-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  font-size: 13px;
+}
+
+.ptax-infobox .property-table tr:nth-child(even) {
+  background-color: #f4f4f4;
+}
+
+.ptax-infobox .property-table td {
+  padding: 7px 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.ptax-infobox .property-table tr:last-child td {
+  border-bottom: none;
+}
+
+.ptax-infobox .property-table td:first-child {
+  font-weight: 600;
+  color: #555;
+  background-color: #f9f9f9;
+  width: 40%;
+  /* Labels ke liye fixed width */
+}
+
+/* --- END NEW CSS --- */
+
+/* Naya CSS Search ke liye */
+#search-container input[type="text"] {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.3);
+  color: #fff;
+  font-size: 14px;
+}
+
+#search-results {
+  max-height: 250px;
+  overflow-y: auto;
+  margin-top: 10px;
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(5px);
+}
+
+.search-result-item {
+  padding: 12px 15px;
+  color: #ecf0f1;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  transition: background 0.2s ease;
+}
+
+.search-result-item:last-child {
+  border-bottom: none;
+}
+
+.search-result-item:hover {
+  background: rgba(52, 152, 219, 0.3);
+}
+
+.search-result-item strong {
+  color: #3498db;
+}
+
+.search-result-item small {
+  color: #bdc3c7;
+  font-size: 11px;
+  display: block;
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.search-no-results {
+  padding: 12px 15px;
+  color: #95a5a6;
+  font-style: italic;
+  text-align: center;
+}
+
+.search-no-results {
+  padding: 12px 15px;
+  color: #95a5a6;
+  font-style: italic;
+  text-align: center;
+}
