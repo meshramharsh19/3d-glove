@@ -13,8 +13,13 @@ function toggleLayer(layerType) {
   } else if (layerType === "roads") {
     if (roadsDataSource) roadsDataSource.show = isChecked;
   } else if (layerType === "houses") {
-    if (housesDataSource) housesDataSource.show = isChecked;
-  } else if (layerType === "paths") {
+  if (housesDataSource) {
+    housesDataSource.show = isChecked;
+    if (isChecked && typeof window.resetHouseLayerView === "function") {
+      window.resetHouseLayerView();
+    }
+  }
+}else if (layerType === "paths") {
     if (pathsDataSource) pathsDataSource.show = isChecked;
   }
 }
@@ -283,3 +288,28 @@ function loadKMZLayers() {
     alert('Failed loading dynamic KML layers. See console for details.');
   });
 }
+
+
+/* ---------------------------------------------------
+ * 🔴 REALTIME HOOK FOR WEBSOCKET UPDATES
+ * ---------------------------------------------------
+ *
+ * IMPORTANT:
+ * - WebSocket (ptax_data.js) sirf ptaxDatabase update karega.
+ * - Yahan hum koi polygon / entity draw NAHI kar rahe.
+ * - Polygon + Survey Point sirf search ke time flyToHouse()
+ *   ke DB fallback se draw honge.
+ */
+
+window.handleRealtimeSurveyFeature = function (feature) {
+  console.log(
+    '📥 Realtime feature received in 5_layer_manager (no draw). Polygon will be drawn only after search:',
+    feature
+  );
+  // Intentionally empty — NO viewer.entities.add() here.
+};
+
+
+
+
+

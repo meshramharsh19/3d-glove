@@ -90,3 +90,43 @@ if (typeof module !== 'undefined' && module.exports) {
   module.exports = { initPtaxDatabase, featureCollectionToPtaxDatabase };
 }
 
+// Auto-init on script load (non-blocking)
+if (typeof window !== 'undefined') {
+  // attempt init immediately
+  initPtaxDatabase().catch(() => {});
+}
+
+// Export for module setups (optional)
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { initPtaxDatabase, featureCollectionToPtaxDatabase };
+}
+
+/* -------------------------------
+ * 🔴 REALTIME UPDATES VIA SOCKET.IO
+ * ------------------------------- */
+if (typeof window !== 'undefined' && typeof io !== 'undefined') {
+  // Use same base as API (http://localhost:5001 by default)
+  const socket = io(PTAX_API_BASE);
+
+  socket.on('connect', () => {
+    console.log('✅ WebSocket connected in ptax_data.js:', socket.id);
+  });
+
+  // Backend emits this in /api/save-survey
+  socket.on('3d:survey:new', (feature) => {
+    console.log('📡 Realtime feature from backend:', feature);
+
+    // 1) Update ptaxDatabase with this single feature
+    const fc = { type: 'FeatureCollection', features: [feature] };
+    const newEntries = featureCollectionToPtaxDatabase(fc);
+
+    // merge into existing global DB
+    window.ptaxDatabase = window.ptaxDatabase || {};
+    Object.assign(window.ptaxDatabase, newEntries);
+
+    // 2) Tell 3D map to draw this feature live (if function is defined)
+    if (typeof window.handleRealtimeSurveyFeature === 'function') {
+      window.handleRealtimeSurveyFeature(feature);
+    }
+  });
+}
