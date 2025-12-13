@@ -1,0 +1,32 @@
+.road-popup {
+    position: absolute;
+    top: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 320px;
+    background: rgba(20, 20, 30, 0.9);
+    backdrop-filter: blur(10px);
+    color: white;
+    border-radius: 12px;
+    padding: 16px;
+    z-index: 9999;
+}
+
+.hidden {
+    display: none;
+}
+
+button {
+    width: 100%;
+    padding: 10px;
+    background: #4F46E5;
+    border: none;
+    border-radius: 8px;
+    color: white;
+}
+
+video {
+    width: 100%;
+    margin-top: 10px;
+    display: none;
+}

@@ -20,6 +20,8 @@
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 
   <link rel="stylesheet" href="css/style.css" />
+  <link rel="icon" href="data:,">
+
 </head>
 
 <body>
@@ -147,16 +149,31 @@
 
   <div id="cesiumContainer"></div>
 
+<div id="roadPopup" class="road-popup hidden">
+  <div class="popup-header">
+    <span>📍 Road Survey</span>
+    <button onclick="closePopup()">✖</button>
+  </div>
+  <div class="popup-body">
+    <button id="playVideoBtn">▶ Play Video</button>
+    <video id="roadVideo" controls></video>
+  </div>
+</div>
+
+  
   <script src="ptax_data.js"></script>
+<script src="js/1_config_globals.js"></script>
+<script src="js/2_ui_helpers.js"></script>
+<script src="js/3_utils.js"></script>
+<script src="js/4_model_manager.js"></script>
+<script src="js/5_layer_manager.js"></script>
 
-  <script src="js/1_config_globals.js"></script>
-  <script src="js/2_ui_helpers.js"></script>
-  <script src="js/3_utils.js"></script>
-  <script src="js/4_model_manager.js"></script>
-  <script src="js/5_layer_manager.js"></script>
-  <script src="js/6_search_feature.js"></script>
+<link rel="stylesheet" href="./css/popup.css" />
+<script src="./js/roadSurvey3D.js"></script>
 
-  <script src="js/7_main.js"></script>
+<script src="js/6_search_feature.js"></script>
+<script src="js/7_main.js"></script>
+
 
 </body>
 
