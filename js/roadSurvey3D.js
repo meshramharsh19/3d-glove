@@ -126,3 +126,26 @@ function closePopup() {
   if (popup) popup.classList.add("hidden");
 }
 
+const popup = document.getElementById("roadPopup");
+const resizeBtn = document.getElementById("resizeBtn");
+const closeBtn = document.getElementById("closeBtn");
+
+resizeBtn.onclick = async () => {
+  if (!document.fullscreenElement) {
+    await popup.requestFullscreen();
+  } else {
+    await document.exitFullscreen();
+  }
+};
+
+
+closeBtn.onclick = () => {
+  const iframe = document.getElementById("roadIframe");
+  iframe.src = "";
+  popup.classList.add("hidden");
+
+  if (document.fullscreenElement) {
+    document.exitFullscreen();
+  }
+};
+

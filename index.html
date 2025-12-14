@@ -166,31 +166,38 @@
 
   <div id="cesiumContainer"></div>
 
-<div id="roadPopup" class="road-popup hidden">
-  <div class="popup-header">
-    <span>📍 Road Survey</span>
-    <button onclick="closePopup()">✖</button>
+  <div id="roadPopup" class="road-popup hidden">
+  <div class="road-popup-header">
+    <span class="popup-title">Road Survey</span>
+  
+    <div class="popup-actions">
+      <button id="resizeBtn" title="Maximize / Restore">⛶</button>
+      <button id="closeBtn" title="Close">✕</button>
+    </div>
   </div>
+
 
   <div class="popup-body">
-    <iframe id="roadIframe" style="width:100%; height:300px; border:none;" allow="autoplay; fullscreen; microphone"
-      allowfullscreen></iframe>
+    <iframe id="roadIframe" allow="autoplay; fullscreen; microphone" allowfullscreen>
+    </iframe>
   </div>
-</div>
 
-  
+
+  </div>
+
+
   <script src="ptax_data.js"></script>
-<script src="js/1_config_globals.js"></script>
-<script src="js/2_ui_helpers.js"></script>
-<script src="js/3_utils.js"></script>
-<script src="js/4_model_manager.js"></script>
-<script src="js/5_layer_manager.js"></script>
+  <script src="js/1_config_globals.js"></script>
+  <script src="js/2_ui_helpers.js"></script>
+  <script src="js/3_utils.js"></script>
+  <script src="js/4_model_manager.js"></script>
+  <script src="js/5_layer_manager.js"></script>
 
-<link rel="stylesheet" href="./css/popup.css" />
-<script src="./js/roadSurvey3D.js"></script>
+  <link rel="stylesheet" href="./css/popup.css" />
+  <script src="./js/roadSurvey3D.js"></script>
 
-<script src="js/6_search_feature.js"></script>
-<script src="js/7_main.js"></script>
+  <script src="js/6_search_feature.js"></script>
+  <script src="js/7_main.js"></script>
 
 
 </body>
