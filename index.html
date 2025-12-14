@@ -4,8 +4,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta http-equiv="Content-Security-Policy"
-    content="worker-src blob: 'self' https://cesium.com; child-src blob: 'self' https://cesium.com;" />
+  <meta http-equiv="Content-Security-Policy" content="
+      default-src * 'self' blob: data:;
+      script-src * 'self' 'unsafe-inline' 'unsafe-eval' blob:;
+      style-src * 'self' 'unsafe-inline';
+      img-src * 'self' data: blob:;
+      media-src * 'self' blob: data:;
+      frame-src * 'self' http://localhost:5001 http://13.127.220.89:8083;
+      child-src * 'self' blob: http://localhost:5001 http://13.127.220.89:8083;
+      worker-src * blob: 'self' https://cesium.com;
+    ">
+
   <title>3D Model with KMZ Layers</title>
 
   <script src="https://cesium.com/downloads/cesiumjs/releases/1.104/Build/Cesium/Cesium.js"></script>
@@ -162,9 +171,10 @@
     <span>📍 Road Survey</span>
     <button onclick="closePopup()">✖</button>
   </div>
+
   <div class="popup-body">
-    <button id="playVideoBtn">▶ Play Video</button>
-    <video id="roadVideo" controls></video>
+    <iframe id="roadIframe" style="width:100%; height:300px; border:none;" allow="autoplay; fullscreen; microphone"
+      allowfullscreen></iframe>
   </div>
 </div>
 

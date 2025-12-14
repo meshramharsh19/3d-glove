@@ -95,33 +95,21 @@ viewer.screenSpaceEventHandler.setInputAction((click) => {
 ------------------------------------------------ */
 function showPopup(videoUrl) {
   const popup = document.getElementById("roadPopup");
-  const video = document.getElementById("roadVideo");
-  const btn = document.getElementById("playVideoBtn");
+  const iframe = document.getElementById("roadIframe");
 
-  if (!popup || !video || !btn) {
-    console.error("Popup elements missing in HTML");
+  if (!popup || !iframe) {
+    console.error("Popup or iframe missing");
     return;
   }
 
   popup.classList.remove("hidden");
 
-  const role = localStorage.getItem("role") || "admin";
-
-  if (role === "viewer") {
-    btn.innerText = "🔒 Access Restricted";
-    btn.disabled = true;
-    return;
-  }
-
-  btn.disabled = false;
-  btn.innerText = "▶ Play Video";
-
-  btn.onclick = () => {
-    video.src = videoUrl;
-    video.style.display = "block";
-    video.play();
-  };
+  // IMPORTANT: reset first
+  iframe.src = "";
+  iframe.src = videoUrl;
 }
+
+
 
 /* ------------------------------------------------
    6️⃣ OPTIONAL: CLOSE POPUP (if button used)
@@ -137,3 +125,4 @@ function closePopup() {
   }
   if (popup) popup.classList.add("hidden");
 }
+

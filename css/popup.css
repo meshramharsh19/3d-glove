@@ -30,3 +30,20 @@ video {
     margin-top: 10px;
     display: none;
 }
+
+.drone-frame {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* Fullscreen support */
+.road-popup {
+  width: 360px;
+  height: 520px;
+}
+
+.road-popup:fullscreen {
+  width: 100vw;
+  height: 100vh;
+}
