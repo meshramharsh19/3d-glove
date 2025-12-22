@@ -5,36 +5,44 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="Content-Security-Policy" content="
-      default-src * 'self' blob: data:;
-      script-src * 'self' 'unsafe-inline' 'unsafe-eval' blob:;
-      style-src * 'self' 'unsafe-inline';
-      img-src * 'self' data: blob:;
-      media-src * 'self' blob: data:;
-      frame-src * 'self' http://localhost:5001 http://13.127.220.89:8083;
-      child-src * 'self' blob: http://localhost:5001 http://13.127.220.89:8083;
-      worker-src * blob: 'self' https://cesium.com;
-    ">
+    default-src * 'self' blob: data:;
+    script-src * 'self' 'unsafe-inline' 'unsafe-eval' blob:;
+    style-src * 'self' 'unsafe-inline';
+    img-src * 'self' data: blob:;
+    media-src * 'self' blob: data:;
+    frame-src * 'self' http://localhost:5001 http://13.127.220.89:8083;
+    child-src * 'self' blob: http://localhost:5001 http://13.127.220.89:8083;
+    worker-src * blob: 'self' https://cesium.com;
+  ">
 
   <title>3D Model with KMZ Layers</title>
 
+  <!-- Cesium -->
   <script src="https://cesium.com/downloads/cesiumjs/releases/1.104/Build/Cesium/Cesium.js"></script>
   <link href="https://cesium.com/downloads/cesiumjs/releases/1.104/Build/Cesium/Widgets/widgets.css" rel="stylesheet" />
+
+  <!-- Three.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/loaders/OBJLoader.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/loaders/MTLLoader.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/exporters/GLTFExporter.js"></script>
+
+  <!-- Utils -->
   <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
+  <!-- Socket -->
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 
+  <!-- Styles -->
   <link rel="stylesheet" href="css/style.css" />
-  <link rel="icon" href="data:,">
-
+  <link rel="stylesheet" href="css/popup.css" />
+  <link rel="icon" href="data:," />
 </head>
 
 <body>
 
+  <!-- Loading Overlay -->
   <div id="loading-overlay" style="display: none">
     <div class="spinner"></div>
     <p id="loading-text">Processing model...</p>
@@ -42,49 +50,28 @@
       <div class="progress-fill" id="progress-fill"></div>
     </div>
     <div id="memory-warning">
-      <strong>Warning:</strong> Loading large models may cause performance
-      issues on low-memory devices.
+      <strong>Warning:</strong> Loading large models may cause performance issues.
     </div>
   </div>
 
+  <!-- Sidebar -->
   <div id="sidebar">
     <h2>🗺️ Model & Layer Controls</h2>
 
+    <!-- Search -->
     <div class="input-group" id="search-container">
       <label for="searchInput">🔍 Search Property</label>
-      <input type="text" id="searchInput" placeholder="e.g., H101, Owner Name, Phone..."
-        oninput="debounce(searchProperties, 300)()" onfocus="searchProperties()" autocomplete="off" />
-      <button class="control-button" onclick="searchProperties()"
-        style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%)">
-        Search
-      </button>
+      <div class="search-row">
+        <input type="text" id="searchInput" placeholder="e.g., H101, Owner Name, Phone..."
+          oninput="debounce(searchProperties, 300)()" onfocus="searchProperties()" autocomplete="off" />
+
+        <button class="search-btn" onclick="searchProperties()">Search</button>
+      </div>
+
       <div id="search-results"></div>
     </div>
-    <h4 style="color: #e67e22">Optimized Large Model Support</h4>
 
-    <div id="upload-area">
-      <label for="fileInput" class="custom-file-upload">📍 Location File</label>
-      <input type="file" id="fileInput" accept=".txt" />
-
-      <label for="modelUpload" class="custom-file-upload">🎯 Choose Model Files</label>
-      <input type="file" id="modelUpload" multiple accept=".obj,.mtl,.glb,.gltf,.dae,.jpg,.jpeg,.png,.bmp,.tga" />
-
-      <div id="file-status">
-        <strong>File Status:</strong><br />
-        <span id="status-text">No files uploaded</span>
-      </div>
-
-      <div id="debug-info" class="debug-section" style="display: none">
-        <strong>Debug Info:</strong><br />
-        <span id="debug-text"></span>
-      </div>
-
-      <h4>📋 Instructions:</h4>
-      <h5>1. Select Georeferencing.txt file</h5>
-      <h5>2. Select .obj, .mtl, and texture files together</h5>
-      <h5>3. Supported: OBJ, MTL, GLB, GLTF, DAE</h5>
-    </div>
-
+    <!-- KMZ Layers -->
     <div class="input-group layer-control">
       <label>🗂️ KMZ Layers</label>
 
@@ -105,91 +92,175 @@
         </div>
       </div>
 
-      <div class="layer-toggle" onclick="toggleLayer('roads')">
-        <input type="checkbox" id="roadsToggle" onclick="event.stopPropagation(); toggleLayer('roads')" />
-        <label for="roadsToggle">Roads (paths.kmz)</label>
-        <span class="layer-status status-loading" id="roadsStatus">Loading...</span>
+      <div class="layer-toggle-row">
+        <div class="layer-toggle" onclick="toggleLayer('roads')">
+          <input type="checkbox" id="roadsToggle" onclick="event.stopPropagation(); toggleLayer('roads')" />
+          <label for="roadsToggle">Roads</label>
+          <span class="layer-status status-loading" id="roadsStatus">Loading...</span>
+        </div>
+
+        <div class="layer-toggle" onclick="toggleLayer('houses')">
+          <input type="checkbox" id="housesToggle" onclick="event.stopPropagation(); toggleLayer('houses')" />
+          <label for="housesToggle">Houses</label>
+          <span class="layer-status status-loaded" id="housesStatus">Loaded</span>
+        </div>
       </div>
 
-      <div class="layer-toggle" onclick="toggleLayer('houses')">
-        <input type="checkbox" id="housesToggle" onclick="event.stopPropagation(); toggleLayer('houses')" />
-        <label for="housesToggle">Houses (HOUSES polygon.kmz)</label>
-        <span class="layer-status status-loading" id="housesStatus">Loading...</span>
-      </div>
     </div>
 
-    <div class="input-group">
-      <label>🌐 Position Controls</label>
-      <label>Longitude:</label>
-      <input type="number" id="longitude" value="79.109438" step="0.000001" />
-      <label>Latitude:</label>
-      <input type="number" id="latitude" value="21.096409" step="0.000001" />
-      <label>Height:</label>
-      <input type="number" id="height" value="0" />
-    </div>
+    <!-- Position
 
-    <div class="input-group">
+   <div class="input-group position-grid">
+
+  <div class="row2">
+    <label>Longitude:</label>
+    <input type="number" id="longitude" />
+
+    <label>Latitude:</label>
+    <input type="number" id="latitude" />
+  </div>
+
+  <div class="row1">
+    <label>Height:</label>
+    <input type="number" id="height" />
+  </div>
+
+</div> -->
+
+
+    <!-- Rotation -->
+    <!-- <div class="input-group">
       <label>🔄 Rotation Controls</label>
-      <label>Heading:</label>
-      <input type="number" id="heading" value="21" />
-      <label>Pitch:</label>
-      <input type="number" id="pitch" value="92" />
-      <label>Roll:</label>
-      <input type="number" id="roll" value="14" />
-    </div>
+     <div class="input-group rotation-grid">
 
-    <div class="input-group">
-      <label>📏 Scale Control</label>
-      <input type="number" id="scale" value="50.1" step="0.1" min="0.1" max="100" />
-    </div>
+  <div class="row2">
+    <label>Heading:</label>
+    <input type="number" id="heading" />
 
-    <div class="input-group">
-      <button class="control-button" onclick="resetToGroundLevel()">
-        📍 Ground Level
-      </button>
-      <button class="control-button" onclick="centerOnModel()">
-        🎯 Center View
-      </button>
-      <button class="control-button" onclick="optimizeMemory()">
-        ⚡ Free Memory
-      </button>
-    </div>
+    <label>Pitch:</label>
+    <input type="number" id="pitch" />
   </div>
 
-  <div id="cesiumContainer"></div>
+  <div class="row1">
+    <label>Roll:</label>
+    <input type="number" id="roll" />
+  </div>
 
+</div>
+
+    </div>  -->
+
+    <!-- <--SCALES -->
+    <div class="input-group six-grid">
+
+      <label class="six-title">SCALES</label>
+
+      <div class="pair">
+        <label>Longitude:</label>
+        <input type="number" id="longitude" />
+      </div>
+
+      <div class="pair">
+        <label>Latitude:</label>
+        <input type="number" id="latitude" />
+      </div>
+
+      <div class="pair">
+        <label>Height:</label>
+        <input type="number" id="height" />
+      </div>
+
+      <div class="pair">
+        <label>Heading:</label>
+        <input type="number" id="heading" />
+      </div>
+
+      <div class="pair">
+        <label>Pitch:</label>
+        <input type="number" id="pitch" />
+      </div>
+
+      <div class="pair">
+        <label>Roll:</label>
+        <input type="number" id="roll" />
+      </div>
+
+    </div>
+
+
+
+
+    <!-- Scale -->
+    <div class="input-group">
+      <!-- Buttons -->
+      <div class="action-row">
+        <button class="action-btn" onclick="resetToGroundLevel()">Ground</button>
+        <button class="action-btn" onclick="centerOnModel()">Center</button>
+        <button class="action-btn" onclick="optimizeMemory()">Free</button>
+      </div>
+
+    </div>
+
+    <input type="number" id="scale" value="50.1" step="0.1" min="0.1" max="100" />
+  </div>
+
+
+
+  <!-- Cesium Map -->
+<div id="map-wrapper">
+  <div id="map-card">
+    <div id="cesiumContainer"></div>
+  </div>
+</div>
+
+
+  <!-- Road Popup -->
   <div id="roadPopup" class="road-popup hidden">
-  <div class="road-popup-header">
-    <span class="popup-title">Road Survey</span>
-  
-    <div class="popup-actions">
-      <button id="resizeBtn" title="Maximize / Restore">⛶</button>
-      <button id="closeBtn" title="Close">✕</button>
+    <div class="road-popup-header">
+      <span class="popup-title">Road Survey</span>
+      <div class="popup-actions">
+        <button id="resizeBtn">⛶</button>
+        <button id="closeBtn">✕</button>
+      </div>
+    </div>
+    <div class="popup-body">
+      <iframe id="roadIframe" allow="autoplay; fullscreen; microphone" allowfullscreen></iframe>
     </div>
   </div>
 
-
-  <div class="popup-body">
-    <iframe id="roadIframe" allow="autoplay; fullscreen; microphone" allowfullscreen>
-    </iframe>
-  </div>
-
-
-  </div>
-
-
+  <!-- Scripts -->
   <script src="ptax_data.js"></script>
   <script src="js/1_config_globals.js"></script>
   <script src="js/2_ui_helpers.js"></script>
   <script src="js/3_utils.js"></script>
   <script src="js/4_model_manager.js"></script>
   <script src="js/5_layer_manager.js"></script>
-
-  <link rel="stylesheet" href="./css/popup.css" />
-  <script src="./js/roadSurvey3D.js"></script>
-
+  <script src="js/roadSurvey3D.js"></script>
   <script src="js/6_search_feature.js"></script>
   <script src="js/7_main.js"></script>
+<button id="themeToggle" class="theme-toggle-btn" title="Toggle theme">
+  🌙
+</button>
+
+
+  <script>
+    const toggleBtn = document.getElementById("themeToggle");
+    const body = document.body;
+
+    if (localStorage.getItem("theme") === "light") {
+      body.classList.add("light-theme");
+      toggleBtn.textContent = "🌞";
+    }
+
+    toggleBtn.addEventListener("click", () => {
+      body.classList.toggle("light-theme");
+
+      const isLight = body.classList.contains("light-theme");
+      toggleBtn.textContent = isLight ? "🌞" : "🌙";
+      localStorage.setItem("theme", isLight ? "light" : "dark");
+    });
+  </script>
+
 
 
 </body>
