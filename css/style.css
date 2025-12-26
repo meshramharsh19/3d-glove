@@ -20,7 +20,7 @@ body {
   margin-left: 15px;
   border-radius: 2px;
 
-  
+
 
   padding-bottom: 0 !important;
   margin-bottom: 0 !important;
@@ -59,6 +59,7 @@ body {
   /* height: 100vh; */
   /* margin: 10px; */
 }
+
 #sidebar {
   position: absolute;
   top: 0px;
@@ -547,7 +548,7 @@ input[type="range"]::-moz-range-thumb {
 
 
 
-/* ========================================= */
+/* =========================================
 /* PERFECT FIT SIDEBAR — NO SCROLL, NO CUT   */
 /* ========================================= */
 
@@ -661,16 +662,30 @@ input[type="range"]::-webkit-slider-thumb {
 }
 
 
-/* ========================= */
-/* GLOBAL THEME TOGGLE BTN */
-/* ========================= */
+/* =========================
+   GLOBAL THEME TOGGLE BTN
+   (TOP RIGHT)
+========================= */
 
 .theme-toggle-btn {
+  position: fixed;
+  /* 🔑 key */
+  top: 15px;
+  right: 15px;
+
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+
   background: rgba(255, 255, 255, 0.15);
   border: 1px solid rgba(255, 255, 255, 0.25);
   backdrop-filter: blur(18px);
-}
 
+  cursor: pointer;
+  z-index: 9999;
+  /* above map, below sidebar */
+  transition: transform 0.2s ease;
+}
 
 .theme-toggle-btn:hover {
   transform: scale(1.1);
@@ -975,7 +990,7 @@ body {
   height: 100%;
   margin: 0;
   padding: 0;
-  background:   white;
+  /* background:   white; */
   /* same as app background */
   overflow: hidden;
 }
@@ -990,7 +1005,7 @@ body {
   width: 240px;
   height: 100vh;
   z-index: 1000;
-  border-radius: 16px; 
+  border-radius: 16px;
 }
 
 /* =====================================
@@ -1002,13 +1017,14 @@ body {
    MAP CARD (BOXED LOOK)
 ===================================== */
 #map-card {
+
   width: 80%;
   height: 95vh;
-margin-top: 15px;
-/* margin-bottom: 15px; */
+  margin-top: 15px;
+  /* margin-bottom: 15px; */
 
 
-  background: white;
+  background: #ffffff;
   border-radius: 16px;
   overflow: hidden;
   /* REQUIRED for Cesium */
@@ -1025,4 +1041,80 @@ margin-top: 15px;
   width: 100%;
   height: 100%;
   position: relative;
+}
+
+/* =========================
+   GLOBAL THEME (OUTSIDE SIDEBAR)
+========================= */
+
+/* Page background */
+body.light-theme {
+  background: #f4f7fb;
+}
+
+/* Map card theme support */
+body.light-theme #map-card {
+  background: #ffffff;
+}
+
+/* Dark theme fallback */
+body:not(.light-theme) #map-card {
+  background: #212020;
+}
+
+/* =========================
+   FINAL BACKGROUND FIX
+   (NO SIDEBAR CHANGES)
+========================= */
+
+/* Map card should be white like screenshot */
+#map-card {
+  background: #ffffff;
+}
+
+/* Cesium must stay transparent */
+#cesiumContainer,
+.cesium-widget,
+.cesium-viewer {
+  background: transparent !important;
+}
+
+/* =========================
+   BODY THEME BACKGROUND
+========================= */
+
+/* Light theme */
+body.light-theme {
+  background: #f4f7fb;
+}
+
+/* Dark theme */
+body:not(.light-theme) {
+  background: #0f1115;
+}
+
+
+
+.ptax-pdf-btn {
+  width: 100%;
+  padding: 10px 12px;
+
+  background: linear-gradient(180deg, #2d8cff, #1e6fd9);
+  color: #fff;
+
+  border: 1px solid #1b5fc0;
+  border-radius: 6px;
+
+  font-size: 13px;
+  font-weight: 500;
+
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.ptax-pdf-btn:hover {
+  background: linear-gradient(180deg, #3c97ff, #2a78e0);
 }

@@ -34,6 +34,9 @@
   <!-- Socket -->
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+
   <!-- Styles -->
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="css/popup.css" />
@@ -56,7 +59,7 @@
 
   <!-- Sidebar -->
   <div id="sidebar">
-    <h2>🗺️ Model & Layer Controls</h2>
+    <h2>🗺 Model & Layer Controls</h2>
 
     <!-- Search -->
     <div class="input-group" id="search-container">
@@ -73,7 +76,7 @@
 
     <!-- KMZ Layers -->
     <div class="input-group layer-control">
-      <label>🗂️ KMZ Layers</label>
+      <label>🗂 KMZ Layers</label>
 
       <div class="layer-toggle" onclick="toggleLayer('model')">
         <input type="checkbox" id="modelToggle" checked onclick="event.stopPropagation(); toggleLayer('model')" />
@@ -202,16 +205,19 @@
     </div>
 
     <input type="number" id="scale" value="50.1" step="0.1" min="0.1" max="100" />
+  <div><button id="downloadPtaxPdfBtn" class="ptax-pdf-btn">
+    📄 Download Property PDF
+  </button></div>
   </div>
 
 
 
   <!-- Cesium Map -->
-<div id="map-wrapper">
-  <div id="map-card">
-    <div id="cesiumContainer"></div>
+  <div id="map-wrapper">
+    <div id="map-card">
+      <div id="cesiumContainer"></div>
+    </div>
   </div>
-</div>
 
 
   <!-- Road Popup -->
@@ -228,6 +234,9 @@
     </div>
   </div>
 
+ 
+
+
   <!-- Scripts -->
   <script src="ptax_data.js"></script>
   <script src="js/1_config_globals.js"></script>
@@ -237,10 +246,11 @@
   <script src="js/5_layer_manager.js"></script>
   <script src="js/roadSurvey3D.js"></script>
   <script src="js/6_search_feature.js"></script>
+  <script src="js/ptax_pdf_report.js"></script>
   <script src="js/7_main.js"></script>
-<button id="themeToggle" class="theme-toggle-btn" title="Toggle theme">
-  🌙
-</button>
+  <button id="themeToggle" class="theme-toggle-btn" title="Toggle theme">
+    🌙
+  </button>
 
 
   <script>

@@ -261,6 +261,8 @@ function addPinAndFlyToEntity(entity, propertyData) {
 function flyToHouse(houseId, propertyData) {
   console.log(`Search initiated for: ${houseId}`);
 
+  window.selectedPTAXProperty = propertyData;
+
   const resultsContainer = document.getElementById("search-results");
   const searchInput = document.getElementById("searchInput");
   const houseKey = String(houseId); // normalize to string
