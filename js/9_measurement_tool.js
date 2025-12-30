@@ -120,26 +120,17 @@ function startAreaMeasure() {
       });
     }
   }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
-}
 
-function finishAreaMeasurement() {
-  if (activeMode !== "AREA") return;
+  // 🔑 FINISH ON DOUBLE CLICK
+  measureHandler.setInputAction(() => {
+    if (positions.length < 3) return;
 
-  if (positions.length < 3) {
-    alert("Select at least 3 points to calculate area");
-    return;
-  }
+    const area = calculatePolygonArea(positions);
+    updateMeasurePanel("AREA", area.toFixed(2) + " sq.m");
 
-  const area = calculatePolygonArea(positions);
-
-  updateMeasurePanel(
-    "AREA",
-    area.toFixed(2) + " sq.m"
-  );
-
-  measureHandler.removeInputAction(
-    Cesium.ScreenSpaceEventType.LEFT_CLICK
-  );
+    measureHandler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
+    measureHandler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
+  }, Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
 }
 
 
