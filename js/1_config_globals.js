@@ -41,3 +41,9 @@ let currentModelUrl = null;
 let memoryCheckInterval = null;
 let searchPinEntity = null;
 const pinBuilder = new Cesium.PinBuilder();
+
+// Street View shared state
+window.streetViewState = {
+  lat: null,
+  lon: null
+};

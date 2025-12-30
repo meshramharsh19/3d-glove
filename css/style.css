@@ -1118,3 +1118,51 @@ body:not(.light-theme) {
 .ptax-pdf-btn:hover {
   background: linear-gradient(180deg, #3c97ff, #2a78e0);
 }
+
+
+/* street view panel   */
+.street-view-panel {
+  position: absolute;
+  top: 60px;
+  right: 15px;
+  width: 360px;
+  height: calc(100vh - 80px);
+  background: #0f1115;
+  color: #fff;
+  z-index: 999;
+  border-radius: 6px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+}
+
+.street-view-panel.hidden {
+  display: none;
+}
+
+.sv-header {
+  padding: 10px 12px;
+  background: #161a22;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+}
+
+.sv-header button {
+  background: none;
+  border: none;
+  color: #aaa;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.sv-content {
+  padding: 10px;
+  overflow-y: auto;
+}
+
+.sv-content img {
+  width: 100%;
+  border-radius: 6px;
+}

@@ -200,6 +200,9 @@
         <button class="action-btn" onclick="resetToGroundLevel()">Ground</button>
         <button class="action-btn" onclick="centerOnModel()">Center</button>
         <button class="action-btn" onclick="optimizeMemory()">Free</button>
+        <button class="action-btn" onclick="openStreetViewFromMap()">
+           Street View
+        </button>
       </div>
 
     </div>
@@ -248,9 +251,24 @@
   <script src="js/6_search_feature.js"></script>
   <script src="js/ptax_pdf_report.js"></script>
   <script src="js/7_main.js"></script>
+  <script src="js/8_mapillary_streetview.js"></script>
+
   <button id="themeToggle" class="theme-toggle-btn" title="Toggle theme">
     🌙
   </button>
+
+  <!-- Street View Panel -->
+  <div id="streetViewPanel" class="street-view-panel hidden">
+    <div class="sv-header">
+      <span>Street View (Mapillary)</span>
+      <button onclick="closeStreetView()">✕</button>
+    </div>
+    <div id="streetViewContent" class="sv-content">
+      Click on a road and press Street View
+    </div>
+  </div>
+ x
+
 
 
   <script>

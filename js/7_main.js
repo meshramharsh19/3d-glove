@@ -101,6 +101,32 @@ handler.setInputAction(function (click) {
 }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 // === END: NAYA ON-CLICK PIN FEATURE ===
 
+// ================================
+// GLOBAL CLICK FOR STREET VIEW
+// ================================
+const streetViewHandler =
+  new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+
+streetViewHandler.setInputAction((movement) => {
+
+  const cartesian = viewer.scene.pickPosition(movement.position);
+  if (!cartesian) return;
+
+  const cartographic =
+    Cesium.Cartographic.fromCartesian(cartesian);
+
+  const lat = Cesium.Math.toDegrees(cartographic.latitude);
+  const lon = Cesium.Math.toDegrees(cartographic.longitude);
+
+  // Save globally
+  window.streetViewState.lat = lat;
+  window.streetViewState.lon = lon;
+
+  console.log("Global StreetView location:", lat, lon);
+
+}, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+
 // === BADLAAV 4: Hide search results when clicking outside ===
 document.addEventListener("click", function (event) {
   const searchContainer = document.getElementById("search-container");
