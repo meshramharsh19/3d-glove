@@ -150,3 +150,12 @@ function updateFileStatus() {
 
   statusElement.innerHTML = statusHtml;
 }
+
+function updateMeasurePanel(type, value) {
+  document.getElementById("measureType").innerText = type;
+  document.getElementById("measureValue").innerText = value;
+}
+
+function clearMeasurePanel() {
+  updateMeasurePanel("-", "-");
+}

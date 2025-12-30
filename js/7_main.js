@@ -136,5 +136,14 @@ document.addEventListener("click", function (event) {
 });
 // === END BADLAAV 4 ===
 
+window.onload = function () {
+  initMeasurementTool(viewer);
+
+  document.getElementById("btnDistance").onclick = startDistanceMeasure;
+  document.getElementById("btnArea").onclick = startAreaMeasure;
+  document.getElementById("btnHeight").onclick = startHeightMeasure;
+};
+
+
 // Sabse aakhir mein, default model load karo
 loadDefaultModel();

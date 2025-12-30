@@ -200,3 +200,12 @@ function debounce(func, wait) {
     timeout = setTimeout(() => func.apply(context, args), wait);
   };
 }
+
+function cartesianToLatLonHeight(cartesian) {
+  const c = Cesium.Cartographic.fromCartesian(cartesian);
+  return {
+    lat: Cesium.Math.toDegrees(c.latitude),
+    lon: Cesium.Math.toDegrees(c.longitude),
+    height: c.height
+  };
+}

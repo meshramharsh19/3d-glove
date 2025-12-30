@@ -109,6 +109,17 @@
         </div>
       </div>
 
+      <div id="measurePanel">
+        <h4 id="measureType">-</h4>
+        <p id="measureValue">-</p>
+        
+      <button id="btnDistance" class="action-btn">Distance</button>
+      <button id="btnArea" class="action-btn">Area</button>
+      <button id="btnHeight"class="action-btn">Height</button>
+      <button onclick="resetMeasurement()" class="action-btn">Clear</button>
+      <button onclick="finishAreaMeasurement()" class="action-btn">Finish Area</button>
+</div>
+
     </div>
 
     <!-- Position
@@ -250,6 +261,7 @@
   <script src="js/roadSurvey3D.js"></script>
   <script src="js/6_search_feature.js"></script>
   <script src="js/ptax_pdf_report.js"></script>
+  <script src="js/9_measurement_tool.js"></script>
   <script src="js/7_main.js"></script>
   <script src="js/8_mapillary_streetview.js"></script>
 

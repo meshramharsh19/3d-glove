@@ -47,3 +47,10 @@ window.streetViewState = {
   lat: null,
   lon: null
 };
+
+window.measurementState = {
+  activeMode: null,
+  positions: [],
+  activeShape: null,
+  pointEntities: []
+};
