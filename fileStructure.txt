@@ -1,0 +1,17 @@
+Your-Project-Folder/
+│
+├── 📄 index.html           (Aapka main HTML, ab bilkul saaf-suthra)
+├── 📄 ptax_data.js          (Yeh file waisi hi rahegi)
+│
+├── 📁 css/
+│   └── 📄 style.css         (Saari CSS styling yahaan hai)
+│
+└── 📁 js/
+    ├── 📄 main.js           (Main entry point, sab yahin se shuru hoga)
+    ├── 📄 viewer.js         (Sirf Cesium viewer banane ka code)
+    ├── 📄 ui.js             (Loading screen, debug, aur UI helpers)
+    ├── 📄 utils.js          (Chhote helper functions jaise utmToLatLng, debounce)
+    ├── 📄 modelManager.js   (Sabse complex: OBJ/GLB loading, Three.js conversion)
+    ├── 📄 layerManager.js   (KMZ layer loading aur PTAX info box logic)
+    ├── 📄 search.js         (Property search, flyTo, aur pin lagane ka logic)
+    └── 📄 eventHandlers.js  (Saare event listeners ek jagah)
