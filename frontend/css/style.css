@@ -798,6 +798,17 @@ body.light-theme .control-button {
   font-size: 8px;
 }
 
+.action-btn2 {
+  flex: 1;
+  padding: 5px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: linear-gradient(135deg, #4fa3ff, #6e57ff);
+  color: black;
+  cursor: pointer;
+  font-size: 8px;
+}
+
 .action-btn:hover {
   transform: scale(1.05);
 }

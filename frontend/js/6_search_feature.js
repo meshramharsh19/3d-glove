@@ -5,6 +5,7 @@
 
 // DB search se banaye gaye temporary polygons ko track karne ke liye
 let dbSearchPolygons = []; // track DB-drawn polygons for search
+const ptaxDatabase = window.ptaxDatabase || {};
 
 // ======================================================
 // === NAYA HELPER FUNCTION: Property ke liye Pin URL ===
@@ -84,29 +85,33 @@ function searchProperties() {
     return; // Don't search for empty strings
   }
 
-  if (!ptaxDatabase || Object.keys(ptaxDatabase).length === 0) {
-    resultsContainer.innerHTML =
-      '<div class="search-no-results">Property data not loaded yet.</div>';
-    return;
-  }
+ if (!window.ptaxDatabase || Object.keys(window.ptaxDatabase).length === 0) {
+  resultsContainer.innerHTML =
+    '<div class="search-no-results">Property data not loaded yet.</div>';
+  return;
+}
 
   const matches = [];
   // Define all keys you want to be searchable
-  const searchKeys = [
-    "Property Number",
-    "Name of the Property Owner",
-    "Telephone / Mobile Number",
-    "UID number of Property Owner",
-    "Address of Property",
-    "Name of Occupier & Tenant",
-    "UID number of Occupier",
-    "e-mail-id",
-    "Name of the Property",
-    "Shop No., Office No. Etc.",
-  ];
+const searchKeys = [
+
+ "propertyNumber",
+ "propertyNo",
+ "newPropertyNo",
+ "oldPropertyNo",
+ "ownerName",
+ "address",
+ "ward",
+ "zone",
+ "mobile",
+ "hearingDate",
+ "appealReason",
+ "noticeReason"
+
+];
 
   // Iterate over the ptaxDatabase
-  for (const houseId in ptaxDatabase) {
+for (const houseId in window.ptaxDatabase){
     if (Object.prototype.hasOwnProperty.call(ptaxDatabase, houseId)) {
       const propertyData = ptaxDatabase[houseId];
       let isMatch = false;
@@ -118,13 +123,20 @@ function searchProperties() {
 
       // Check other specified keys
       if (!isMatch) {
-        for (const key of searchKeys) {
-          const value = propertyData[key];
-          if (value && String(value).toLowerCase().includes(query)) {
-            isMatch = true;
-            break; // Found a match in this property, move to next property
-          }
-        }
+        for (const key in propertyData) {
+
+  const value = propertyData[key];
+
+  if (
+    value &&
+    typeof value !== "object" &&
+    String(value).toLowerCase().includes(query)
+  ) {
+    isMatch = true;
+    break;
+  }
+
+}
       }
 
       if (isMatch) {
@@ -142,11 +154,23 @@ function searchProperties() {
     matches.slice(0, 50).forEach((match) => {
       const item = document.createElement("div");
       item.className = "search-result-item";
-      item.innerHTML = `
-        <strong>${match.data["Property Number"]}</strong><br>
-        <small>${match.data["Name of the Property Owner"]}</small>
-        <small>${match.data["Address of Property"]}</small>
-      `;
+
+      const propertyNo =
+  match.data.propertyNumber ||
+  match.data.propertyNo ||
+  match.data.newPropertyNo ||
+  match.id;
+
+const owner =
+  match.data.ownerName ||
+  match.data["Name of the Property Owner"] ||
+  "";
+
+item.innerHTML = `
+<strong>${propertyNo}</strong><br>
+<small>${owner}</small>
+`;
+
       // Click → camera fly
       item.onclick = () => flyToHouse(match.id, match.data);
       resultsContainer.appendChild(item);

@@ -108,15 +108,29 @@
         </div>
       </div>
 
-      <div id="measurePanel">
-        <h4 id="measureType">-</h4>
-        <p id="measureValue">-</p>
-        
+    <div id="measurePanel">
+    
+      <h4 id="measureType">-</h4>
+    <div class="measure-display">
+      <span id="measureValue">-</span>
+      <p></p>
+       
       <button id="btnDistance" class="action-btn">Distance</button>
       <button id="btnArea" class="action-btn">Area</button>
-      <button id="btnHeight"class="action-btn">Height</button>
+      <button id="btnHeight" class="action-btn">Height</button>
       <button onclick="resetMeasurement()" class="action-btn">Clear</button>
-</div>
+    
+      
+      <select id="unitSelect" class="action-btn2">
+        <option value="m">m</option>
+        <option value="km" >km</option>
+        <option value="ft" >ft</option>
+      </select>
+
+    </div>
+    </div>
+
+
 
     </div>
 
@@ -257,13 +271,14 @@
   <script src="js/4_model_manager.js"></script>
   <script src="js/5_layer_manager.js"></script>
   <script src="js/roadSurvey3D.js"></script>
-  <script src="js/6_search_feature.js"></script>
   <script src="js/ptax_pdf_report.js"></script>
+  <script src="js/6_search_feature.js"></script>
   <script src="js/9_measurement_tool.js"></script>
   <script src="js/7_main.js"></script>
   <script src="js/8_mapillary_streetview.js"></script>
+  <script src="js/conversion.js"></script>
 
-  <button id="themeToggle" class="theme-toggle-btn" title="Toggle theme">
+    <button id="themeToggle" class="theme-toggle-btn" title="Toggle theme">
     🌙
   </button>
 
@@ -277,7 +292,6 @@
       Click on a road and press Street View
     </div>
   </div>
- x
 
 
 
