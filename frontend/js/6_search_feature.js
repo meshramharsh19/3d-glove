@@ -112,8 +112,8 @@ const searchKeys = [
 
   // Iterate over the ptaxDatabase
 for (const houseId in window.ptaxDatabase){
-    if (Object.prototype.hasOwnProperty.call(ptaxDatabase, houseId)) {
-      const propertyData = ptaxDatabase[houseId];
+    if (Object.prototype.hasOwnProperty.call(window.ptaxDatabase, houseId)) {
+      const propertyData = window.ptaxDatabase[houseId];
       let isMatch = false;
 
       // Check houseId (which is also often the Property Number)

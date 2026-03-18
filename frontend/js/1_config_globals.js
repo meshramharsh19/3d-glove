@@ -21,6 +21,17 @@ const viewer = new Cesium.Viewer("cesiumContainer", {
   shouldAnimate: true,
   shadows: false,
   sceneMode: Cesium.SceneMode.SCENE3D,
+  geocoder: false,
+  homeButton: false,
+  sceneModePicker: false,
+  baseLayerPicker: false,
+  navigationHelpButton: false,
+  animation: false,
+  timeline: false,
+  fullscreenButton: false,
+  vrButton: false,
+  infoBox: false,
+  selectionIndicator: false,
 });
 
 // CRITICAL: Enable depth testing against terrain to prevent z-fighting

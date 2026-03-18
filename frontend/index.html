@@ -15,7 +15,7 @@
     worker-src * blob: 'self' https://cesium.com;
   ">
 
-  <title>3D Model with KMZ Layers</title>
+  <title>GeoVis Professional Property Viewer</title>
 
   <!-- Cesium -->
   <script src="https://cesium.com/downloads/cesiumjs/releases/1.104/Build/Cesium/Cesium.js"></script>
@@ -42,7 +42,47 @@
   <link rel="icon" href="data:," />
 </head>
 
-<body>
+<body class="sidebar-collapsed">
+
+  <header id="topbar">
+    <div class="topbar-left">
+      <div class="brand-mark">GV</div>
+      <div class="brand-copy">
+        <span class="brand-title">GeoVis Viewer</span>
+        <span class="brand-sub">Nagpur Urban Survey</span>
+      </div>
+    </div>
+
+    <div class="topbar-center">
+      <div id="search-container" class="header-search-panel">
+        <div class="header-searchbox">
+        <span class="header-search-icon">🔎</span>
+        <input type="text" id="searchInput" placeholder="Search property, owner or phone"
+          oninput="debounce(searchProperties, 300)()" onfocus="searchProperties()"
+          onkeydown="if(event.key==='Enter'){event.preventDefault();searchProperties();}" autocomplete="off" />
+        </div>
+        <div id="search-results"></div>
+      </div>
+    </div>
+
+    <div class="topbar-right">
+      <details class="nav-attitude" aria-label="Scale">
+        <summary class="nav-attitude-trigger">Scale ▾</summary>
+        <div class="nav-attitude-menu">
+          <span class="chip chip-muted">HDG <strong id="navHeading">--</strong></span>
+          <span class="chip chip-muted">PIT <strong id="navPitch">--</strong></span>
+          <span class="chip chip-muted">ROL <strong id="navRoll">--</strong></span>
+        </div>
+      </details>
+      <button id="downloadPtaxPdfBtn" class="nav-download-btn" title="Download selected property PDF">
+        <span class="nav-download-icon">📄</span>
+        <span>Property PDF</span>
+      </button>
+      <button id="themeToggle" class="icon-btn" title="Toggle theme">🌙</button>
+    </div>
+  </header>
+
+  <button id="sidebarToggle" class="icon-btn sidebar-edge-toggle" title="Collapse sidebar" aria-label="Collapse sidebar">‹</button>
 
   <!-- Loading Overlay -->
   <div id="loading-overlay" style="display: none">
@@ -58,182 +98,81 @@
 
   <!-- Sidebar -->
   <div id="sidebar">
-    <h2>🗺 Model & Layer Controls</h2>
+    <h2>Model and Layer Controls</h2>
 
-    <!-- Search -->
-    <div class="input-group" id="search-container">
-      <label for="searchInput">🔍 Search Property</label>
-      <div class="search-row">
-        <input type="text" id="searchInput" placeholder="e.g., H101, Owner Name, Phone..."
-          oninput="debounce(searchProperties, 300)()" onfocus="searchProperties()" autocomplete="off" />
+    <div class="sidebar-accordion">
+      <details class="sidebar-group">
+        <summary>KMZ Layers</summary>
+        <div class="sidebar-group-body">
+          <div class="input-group layer-control">
+            <div class="layer-toggle" onclick="toggleLayer('model')">
+              <input type="checkbox" id="modelToggle" checked onclick="event.stopPropagation(); toggleLayer('model')" />
+              <label for="modelToggle">3D Model</label>
+              <span class="layer-status status-loaded" id="modelStatus">Loaded</span>
+            </div>
 
-        <button class="search-btn" onclick="searchProperties()">Search</button>
-      </div>
+            <div class="model-opacity-block">
+              <label class="model-opacity-label">Model Opacity</label>
+              <input type="range" id="modelOpacity" min="0" max="100" value="100" class="opacity-slider"
+                oninput="updateModelOpacity(this.value)" />
+              <div class="slider-label">
+                <span>Transparent</span>
+                <span id="modelOpacityValue">100%</span>
+                <span>Opaque</span>
+              </div>
+            </div>
 
-      <div id="search-results"></div>
-    </div>
+            <div class="layer-toggle-row">
+              <div class="layer-toggle" onclick="toggleLayer('roads')">
+                <input type="checkbox" id="roadsToggle" onclick="event.stopPropagation(); toggleLayer('roads')" />
+                <label for="roadsToggle">Roads</label>
+                <span class="layer-status status-loading" id="roadsStatus">Loading...</span>
+              </div>
 
-    <!-- KMZ Layers -->
-    <div class="input-group layer-control">
-      <label>🗂 KMZ Layers</label>
-
-      <div class="layer-toggle" onclick="toggleLayer('model')">
-        <input type="checkbox" id="modelToggle" checked onclick="event.stopPropagation(); toggleLayer('model')" />
-        <label for="modelToggle">3D Model</label>
-        <span class="layer-status status-loaded" id="modelStatus">Loaded</span>
-      </div>
-
-      <div style="padding-left: 30px; margin-bottom: 10px">
-        <label style="font-size: 11px; color: #95a5a6">Model Opacity</label>
-        <input type="range" id="modelOpacity" min="0" max="100" value="100" class="opacity-slider"
-          oninput="updateModelOpacity(this.value)" />
-        <div class="slider-label">
-          <span>Transparent</span>
-          <span id="modelOpacityValue">100%</span>
-          <span>Opaque</span>
+              <div class="layer-toggle" onclick="toggleLayer('houses')">
+                <input type="checkbox" id="housesToggle" onclick="event.stopPropagation(); toggleLayer('houses')" />
+                <label for="housesToggle">Houses</label>
+                <span class="layer-status status-loaded" id="housesStatus">Loaded</span>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
+      </details>
 
-      <div class="layer-toggle-row">
-        <div class="layer-toggle" onclick="toggleLayer('roads')">
-          <input type="checkbox" id="roadsToggle" onclick="event.stopPropagation(); toggleLayer('roads')" />
-          <label for="roadsToggle">Roads</label>
-          <span class="layer-status status-loading" id="roadsStatus">Loading...</span>
+      <details class="sidebar-group">
+        <summary>Measurement Tools</summary>
+        <div class="sidebar-group-body">
+          <div id="measurePanel" class="input-group">
+            <h4 id="measureType">-</h4>
+            <div class="measure-display">
+              <span id="measureValue">-</span>
+              <p></p>
+
+              <button id="btnDistance" class="action-btn">Distance</button>
+              <button id="btnArea" class="action-btn">Area</button>
+              <button id="btnHeight" class="action-btn">Height</button>
+              <button onclick="resetMeasurement()" class="action-btn">Clear</button>
+
+              <select id="unitSelect" class="action-btn2">
+                <option value="m">m</option>
+                <option value="km">km</option>
+                <option value="ft">ft</option>
+              </select>
+            </div>
+          </div>
         </div>
-
-        <div class="layer-toggle" onclick="toggleLayer('houses')">
-          <input type="checkbox" id="housesToggle" onclick="event.stopPropagation(); toggleLayer('houses')" />
-          <label for="housesToggle">Houses</label>
-          <span class="layer-status status-loaded" id="housesStatus">Loaded</span>
-        </div>
-      </div>
-
-    <div id="measurePanel">
-    
-      <h4 id="measureType">-</h4>
-    <div class="measure-display">
-      <span id="measureValue">-</span>
-      <p></p>
-       
-      <button id="btnDistance" class="action-btn">Distance</button>
-      <button id="btnArea" class="action-btn">Area</button>
-      <button id="btnHeight" class="action-btn">Height</button>
-      <button onclick="resetMeasurement()" class="action-btn">Clear</button>
-    
-      
-      <select id="unitSelect" class="action-btn2">
-        <option value="m">m</option>
-        <option value="km" >km</option>
-        <option value="ft" >ft</option>
-      </select>
-
+      </details>
     </div>
-    </div>
-
-
-
-    </div>
-
-    <!-- Position
-
-   <div class="input-group position-grid">
-
-  <div class="row2">
-    <label>Longitude:</label>
-    <input type="number" id="longitude" />
-
-    <label>Latitude:</label>
-    <input type="number" id="latitude" />
   </div>
 
-  <div class="row1">
-    <label>Height:</label>
-    <input type="number" id="height" />
-  </div>
-
-</div> -->
-
-
-    <!-- Rotation -->
-    <!-- <div class="input-group">
-      <label>🔄 Rotation Controls</label>
-     <div class="input-group rotation-grid">
-
-  <div class="row2">
-    <label>Heading:</label>
+  <div id="cameraScaleInputs" hidden>
     <input type="number" id="heading" />
-
-    <label>Pitch:</label>
     <input type="number" id="pitch" />
-  </div>
-
-  <div class="row1">
-    <label>Roll:</label>
     <input type="number" id="roll" />
-  </div>
-
-</div>
-
-    </div>  -->
-
-    <!-- <--SCALES -->
-    <div class="input-group six-grid">
-
-      <label class="six-title">SCALES</label>
-
-      <div class="pair">
-        <label>Longitude:</label>
-        <input type="number" id="longitude" />
-      </div>
-
-      <div class="pair">
-        <label>Latitude:</label>
-        <input type="number" id="latitude" />
-      </div>
-
-      <div class="pair">
-        <label>Height:</label>
-        <input type="number" id="height" />
-      </div>
-
-      <div class="pair">
-        <label>Heading:</label>
-        <input type="number" id="heading" />
-      </div>
-
-      <div class="pair">
-        <label>Pitch:</label>
-        <input type="number" id="pitch" />
-      </div>
-
-      <div class="pair">
-        <label>Roll:</label>
-        <input type="number" id="roll" />
-      </div>
-
-    </div>
-
-
-
-
-    <!-- Scale -->
-    <div class="input-group">
-      <!-- Buttons -->
-      <div class="action-row">
-        <button class="action-btn" onclick="resetToGroundLevel()">Ground</button>
-        <button class="action-btn" onclick="centerOnModel()">Center</button>
-        <button class="action-btn" onclick="optimizeMemory()">Free</button>
-        <button class="action-btn" onclick="openStreetViewFromMap()">
-           Street View
-        </button>
-      </div>
-
-    </div>
-
+    <input type="number" id="longitude" />
+    <input type="number" id="latitude" />
+    <input type="number" id="height" />
     <input type="number" id="scale" value="50.1" step="0.1" min="0.1" max="100" />
-  <div><button id="downloadPtaxPdfBtn" class="ptax-pdf-btn">
-    📄 Download Property PDF
-  </button></div>
   </div>
 
 
@@ -242,6 +181,24 @@
   <div id="map-wrapper">
     <div id="map-card">
       <div id="cesiumContainer"></div>
+
+      <div class="map-rail" aria-label="Map controls">
+        <button id="btnHome" class="rail-btn" title="Center on model">⌂</button>
+        <button id="btnMode" class="rail-btn" title="Toggle 2D/3D">2D</button>
+        <button id="btnZoomIn" class="rail-btn" title="Zoom in">+</button>
+        <button id="btnZoomOut" class="rail-btn" title="Zoom out">−</button>
+        <div class="rail-divider" aria-hidden="true"></div>
+        <button class="rail-btn" title="Ground" aria-label="Ground" onclick="resetToGroundLevel()">⏚</button>
+        <button class="rail-btn" title="Center" aria-label="Center" onclick="centerOnModel()">◎</button>
+        <button class="rail-btn" title="Free" aria-label="Free" onclick="optimizeMemory()">♻</button>
+        <button class="rail-btn" title="Street View" aria-label="Street View" onclick="openStreetViewFromMap()">👁</button>
+      </div>
+
+      <div class="map-statusbar" aria-label="Camera coordinates">
+        <span>LON <strong id="hudLon">--</strong></span>
+        <span>LAT <strong id="hudLat">--</strong></span>
+        <span>ALT <strong id="hudAlt">--</strong></span>
+      </div>
     </div>
   </div>
 
@@ -277,11 +234,6 @@
   <script src="js/7_main.js"></script>
   <script src="js/8_mapillary_streetview.js"></script>
   <script src="js/conversion.js"></script>
-
-    <button id="themeToggle" class="theme-toggle-btn" title="Toggle theme">
-    🌙
-  </button>
-
   <!-- Street View Panel -->
   <div id="streetViewPanel" class="street-view-panel hidden">
     <div class="sv-header">
@@ -297,6 +249,7 @@
 
   <script>
     const toggleBtn = document.getElementById("themeToggle");
+    const sidebarToggleBtn = document.getElementById("sidebarToggle");
     const body = document.body;
 
     if (localStorage.getItem("theme") === "light") {
@@ -311,9 +264,89 @@
       toggleBtn.textContent = isLight ? "🌞" : "🌙";
       localStorage.setItem("theme", isLight ? "light" : "dark");
     });
+
+    function updateSidebarToggleUi() {
+      if (!sidebarToggleBtn) return;
+      const isCollapsed = body.classList.contains("sidebar-collapsed");
+      sidebarToggleBtn.textContent = isCollapsed ? "›" : "‹";
+      sidebarToggleBtn.title = isCollapsed ? "Open sidebar" : "Collapse sidebar";
+      sidebarToggleBtn.setAttribute(
+        "aria-label",
+        isCollapsed ? "Open sidebar" : "Collapse sidebar"
+      );
+    }
+
+    updateSidebarToggleUi();
+
+    sidebarToggleBtn?.addEventListener("click", () => {
+      body.classList.toggle("sidebar-collapsed");
+      updateSidebarToggleUi();
+    });
+
+    const btnHome = document.getElementById("btnHome");
+    const btnMode = document.getElementById("btnMode");
+    const btnZoomIn = document.getElementById("btnZoomIn");
+    const btnZoomOut = document.getElementById("btnZoomOut");
+    const hudLon = document.getElementById("hudLon");
+    const hudLat = document.getElementById("hudLat");
+    const hudAlt = document.getElementById("hudAlt");
+    const navHeading = document.getElementById("navHeading");
+    const navPitch = document.getElementById("navPitch");
+    const navRoll = document.getElementById("navRoll");
+
+    btnHome?.addEventListener("click", () => {
+      if (typeof centerOnModel === "function") centerOnModel();
+    });
+
+    btnMode?.addEventListener("click", () => {
+      if (typeof viewer === "undefined") return;
+
+      if (btnMode.dataset.mode !== "3d") {
+        viewer.scene.morphTo2D(0.8);
+        btnMode.dataset.mode = "3d";
+        btnMode.textContent = "3D";
+      } else {
+        viewer.scene.morphTo3D(0.8);
+        btnMode.dataset.mode = "2d";
+        btnMode.textContent = "2D";
+      }
+    });
+
+    btnZoomIn?.addEventListener("click", () => {
+      if (typeof viewer === "undefined") return;
+      viewer.camera.zoomIn(viewer.camera.positionCartographic.height * 0.2);
+    });
+
+    btnZoomOut?.addEventListener("click", () => {
+      if (typeof viewer === "undefined") return;
+      viewer.camera.zoomOut(viewer.camera.positionCartographic.height * 0.2);
+    });
+
+    function refreshHud() {
+      if (typeof viewer === "undefined" || !hudLon || !hudLat || !hudAlt) return;
+
+      const c = viewer.camera.positionCartographic;
+      const lon = Cesium.Math.toDegrees(c.longitude).toFixed(5);
+      const lat = Cesium.Math.toDegrees(c.latitude).toFixed(5);
+      const alt = c.height.toFixed(0);
+      const heading = Cesium.Math.toDegrees(viewer.camera.heading);
+      const normalizedHeading = ((heading % 360) + 360) % 360;
+      const pitch = Cesium.Math.toDegrees(viewer.camera.pitch);
+      const roll = Cesium.Math.toDegrees(viewer.camera.roll);
+
+      hudLon.textContent = lon;
+      hudLat.textContent = lat;
+      hudAlt.textContent = `${alt} m`;
+      if (navHeading) navHeading.textContent = `${normalizedHeading.toFixed(1)}°`;
+      if (navPitch) navPitch.textContent = `${pitch.toFixed(1)}°`;
+      if (navRoll) navRoll.textContent = `${roll.toFixed(1)}°`;
+    }
+
+    if (typeof viewer !== "undefined") {
+      refreshHud();
+      viewer.camera.changed.addEventListener(refreshHud);
+    }
   </script>
-
-
 
 </body>
 
