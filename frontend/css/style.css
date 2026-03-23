@@ -109,54 +109,55 @@ body {
 
 .header-search-panel {
   position: relative;
-  width: min(440px, 46vw);
+  width: min(520px, 52vw);
 }
 
 .header-search-panel::before {
   content: "";
   position: absolute;
   inset: -1px;
-  border-radius: 14px;
-  background: linear-gradient(120deg, rgba(103, 166, 255, 0.42), rgba(48, 102, 194, 0.22));
-  opacity: 0.45;
+  border-radius: 16px;
+  background: linear-gradient(120deg, rgba(114, 179, 255, 0.46), rgba(58, 120, 218, 0.18));
+  opacity: 0.52;
   pointer-events: none;
 }
 
 .header-searchbox {
   position: relative;
   width: 100%;
-  height: 40px;
-  border: 1px solid rgba(111, 159, 237, 0.3);
-  border-radius: 13px;
-  background: linear-gradient(180deg, rgba(14, 30, 56, 0.92), rgba(9, 22, 42, 0.92));
+  height: 42px;
+  border: 1px solid rgba(111, 159, 237, 0.34);
+  border-radius: 15px;
+  background: linear-gradient(180deg, rgba(14, 30, 56, 0.95), rgba(9, 22, 42, 0.95));
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 0 7px 0 8px;
+  padding: 0 12px;
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    0 8px 20px rgba(4, 13, 28, 0.35);
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 10px 24px rgba(4, 13, 28, 0.38);
   transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 
 .header-searchbox:focus-within {
-  border-color: rgba(114, 178, 255, 0.78);
+  border-color: rgba(126, 188, 255, 0.82);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    0 0 0 3px rgba(67, 142, 255, 0.2),
-    0 12px 24px rgba(7, 20, 40, 0.42);
+    0 0 0 3px rgba(67, 142, 255, 0.22),
+    0 14px 26px rgba(7, 20, 40, 0.44);
 }
 
 .header-search-icon {
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   border-radius: 999px;
   display: grid;
   place-items: center;
-  color: #8cc2ff;
+  color: #bfe0ff;
   font-size: 12px;
-  background: rgba(35, 76, 138, 0.35);
-  border: 1px solid rgba(112, 166, 245, 0.32);
+  background: linear-gradient(180deg, rgba(62, 124, 214, 0.58), rgba(35, 84, 160, 0.48));
+  border: 1px solid rgba(126, 179, 252, 0.36);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16);
 }
 
 .header-searchbox input {
@@ -166,12 +167,14 @@ body {
   color: #e9f3ff;
   font-size: 13px;
   font-weight: 600;
-  letter-spacing: 0.1px;
+  letter-spacing: 0.15px;
+  line-height: 1;
+  caret-color: #8fc3ff;
   outline: none;
 }
 
 .header-searchbox input::placeholder {
-  color: #7f9fcf;
+  color: #87a8d6;
 }
 
 .header-searchbox button {
@@ -196,16 +199,16 @@ body {
 
 .header-search-panel #search-results {
   position: absolute;
-  top: 46px;
+  top: 50px;
   left: 0;
   width: 100%;
   max-height: 280px;
   margin-top: 0;
   z-index: 2600;
-  border: 1px solid rgba(103, 151, 231, 0.3);
-  border-radius: 10px;
+  border: 1px solid rgba(108, 159, 239, 0.32);
+  border-radius: 12px;
   background: rgba(8, 17, 33, 0.98);
-  box-shadow: 0 18px 30px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 18px 34px rgba(0, 0, 0, 0.38);
 }
 
 .chip {
@@ -855,7 +858,7 @@ input[type="range"]::-moz-range-thumb {
 
 .map-statusbar {
   position: absolute;
-  left: 12px;
+  left: 1250px;
   bottom: 12px;
   display: flex;
   gap: 12px;
@@ -1242,19 +1245,20 @@ body.light-theme .nav-attitude .chip strong {
 
 body.light-theme .header-searchbox {
   background: linear-gradient(180deg, #ffffff, #f1f6ff);
-  border-color: rgba(95, 136, 206, 0.36);
+  border-color: rgba(95, 136, 206, 0.42);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.9),
-    0 8px 18px rgba(74, 110, 171, 0.18);
+    0 10px 18px rgba(74, 110, 171, 0.2);
 }
 
 body.light-theme .header-search-panel::before {
-  background: linear-gradient(120deg, rgba(87, 145, 227, 0.28), rgba(61, 117, 206, 0.14));
-  opacity: 0.7;
+  background: linear-gradient(120deg, rgba(87, 145, 227, 0.34), rgba(61, 117, 206, 0.16));
+  opacity: 0.85;
 }
 
 body.light-theme .header-searchbox input {
   color: #233a5f;
+  caret-color: #4d7ec4;
 }
 
 body.light-theme .header-searchbox input::placeholder {
@@ -1263,8 +1267,8 @@ body.light-theme .header-searchbox input::placeholder {
 
 body.light-theme .header-search-icon {
   color: #3f77bf;
-  background: rgba(86, 139, 214, 0.16);
-  border-color: rgba(94, 142, 214, 0.28);
+  background: linear-gradient(180deg, rgba(110, 162, 234, 0.28), rgba(84, 138, 216, 0.2));
+  border-color: rgba(94, 142, 214, 0.34);
 }
 
 body.light-theme .header-searchbox button {
