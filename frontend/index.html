@@ -232,6 +232,7 @@
   <script src="js/6_search_feature.js"></script>
   <script src="js/9_measurement_tool.js"></script>
   <script src="js/7_main.js"></script>
+  <script src="js/10_banner_manager.js"></script>
   <script src="js/8_mapillary_streetview.js"></script>
   <script src="js/conversion.js"></script>
   <!-- Street View Panel -->
@@ -245,6 +246,74 @@
     </div>
   </div>
 
+  <button id="addBannerBtn" class="banner-add-btn" onclick="openBannerModal()">
+    ADD BANNER
+  </button>
+
+  <!-- =========================
+     Banner List Display
+  ========================= -->
+  
+<div id="bannerSection" class="banner-section">
+
+  <div class="banner-section-header">
+    <h4>Banners</h4>
+  </div>
+
+  <ul id="bannerList" class="banner-list">
+    <li class="banner-empty-state">
+      No banners yet
+    </li>
+  </ul>
+  
+  </div>
+
+<!-- =========================
+   Banner Modal Form
+========================= -->
+
+<div id="bannerModal" style="
+        display:none;
+        position:fixed;
+        top:0;
+        left:0;
+        width:100%;
+        height:100%;
+        background:rgba(0,0,0,0.6);
+        z-index:9999999;
+     ">
+
+  <div style="
+        width:320px;
+        margin:120px auto;
+        background:white;
+        padding:20px;
+        border-radius:10px;
+        box-shadow:0 0 20px rgba(0,0,0,0.5);
+  ">
+
+    <h3>Add Banner</h3>
+
+    <input type="text" id="bannerHouseId" placeholder="House ID" readonly
+      style="width:100%;margin-bottom:10px;padding:8px;" />
+
+    <input type="text" id="bannerTitle" placeholder="Banner Title" style="width:100%;margin-bottom:10px;padding:8px;" />
+
+    <input type="text" id="bannerType" placeholder="Banner Type" style="width:100%;margin-bottom:10px;padding:8px;" />
+
+    <input type="date" id="bannerDate" style="width:100%;margin-bottom:10px;padding:8px;" />
+
+    <button onclick="saveBanner()" style="margin-right:10px;">
+      Save
+    </button>
+
+    <button onclick="closeBannerModal()">
+      Cancel
+    </button>
+
+  </div>
+
+</div>
 
 
   <script>
@@ -347,6 +416,7 @@
       viewer.camera.changed.addEventListener(refreshHud);
     }
   </script>
+
 
 </body>
 

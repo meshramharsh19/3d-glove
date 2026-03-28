@@ -56,49 +56,89 @@ console.log("  ✓ Individual layer visibility toggles");
 // =================================================================
 // === BADLAAV 4: NAYA ON-CLICK PIN FEATURE (REPLACE KIYA GAYA) ===
 // =================================================================
-const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
-handler.setInputAction(function (click) {
-  // 1. Dekho ki user ne kya click kiya
-  const pickedObject = viewer.scene.pick(click.position);
+const handler =
+  new Cesium.ScreenSpaceEventHandler(
+    viewer.scene.canvas
+  );
 
-  // 2. Check karo ki woh ek valid entity hai
+handler.setInputAction(function (click) {
+
+  // 1️⃣ Detect clicked object
+  const pickedObject =
+    viewer.scene.pick(click.position);
+
+  // 2️⃣ Check valid entity
   if (
     Cesium.defined(pickedObject) &&
     Cesium.defined(pickedObject.id) &&
     pickedObject.id instanceof Cesium.Entity
   ) {
-    const clickedEntity = pickedObject.id;
 
-    // 3. Check karo ki woh hamare 'houses' layer ka hissa hai
-    if (housesDataSource && housesDataSource.entities.contains(clickedEntity)) {
-      // === YAHAN BADLAAV KIYA GAYA HAI ===
-      // 4. Agar hai, toh property data nikaalo
-      const houseId = clickedEntity.name;
-      const propertyData = getCustomHouseData(houseId); // YEH AB 100% KAAM KAREGA
+    const clickedEntity =
+      pickedObject.id;
 
-      // 5. Pin add karne wala function call karo (data ke saath)
-      addPinAndFlyToEntity(clickedEntity, propertyData);
-      // === END BADLAAV ===
-    } else {
-      // User ne model ya roads par click kiya
-      // Puraana pin (agar hai) toh hata do
+    // 3️⃣ If house clicked
+    if (
+      housesDataSource &&
+      housesDataSource.entities.contains(clickedEntity)
+    ) {
+
+      const houseId =
+        clickedEntity.name;
+
+      const propertyData =
+        getCustomHouseData(houseId);
+
+      addPinAndFlyToEntity(
+        clickedEntity,
+        propertyData
+      );
+
+      // ✅ SHOW BUTTON
+      showAddBannerButton(houseId);
+
+    }
+
+    else {
+
+      // Clicked other entity
       if (searchPinEntity) {
-        viewer.entities.remove(searchPinEntity);
+
+        viewer.entities.remove(
+          searchPinEntity
+        );
+
         searchPinEntity = null;
+
       }
-      // Default behavior ko chalne do (yaani model/road select ho jaayega)
-      viewer.selectedEntity = clickedEntity; // Manual select
+
+      viewer.selectedEntity =
+        clickedEntity;
+
     }
-  } else {
-    // User ne zameen par click kiya
-    // Puraana pin (agar hai) toh hata do
-    if (searchPinEntity) {
-      viewer.entities.remove(searchPinEntity);
-      searchPinEntity = null;
-    }
-    viewer.selectedEntity = undefined; // InfoBox band karo
+
   }
-}, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+  else {
+
+    // Clicked ground
+    if (searchPinEntity) {
+
+      viewer.entities.remove(
+        searchPinEntity
+      );
+
+      searchPinEntity = null;
+
+    }
+
+    viewer.selectedEntity =
+      undefined;
+
+  }
+
+},
+Cesium.ScreenSpaceEventType.LEFT_CLICK);
 // === END: NAYA ON-CLICK PIN FEATURE ===
 
 // ================================

@@ -78,17 +78,35 @@ function addRoadPolygonTo3D(feature) {
    4️⃣ CLICK HANDLER (CESIUM CORRECT WAY)
 ------------------------------------------------ */
 viewer.screenSpaceEventHandler.setInputAction((click) => {
-  const picked = viewer.scene.pick(click.position);
 
-  if (!picked || !picked.id || !picked.id.properties) return;
+  const picked =
+      viewer.scene.pick(click.position);
 
-  const hasVideo = picked.id.properties.hasVideo.getValue();
+  if (!picked || !picked.id) return;
+
+  const entity = picked.id;
+
+  // SAFETY CHECK
+  if (
+      !entity.properties ||
+      !entity.properties.hasVideo
+  ) return;
+
+  // SAFE ACCESS
+  const hasVideo =
+      entity.properties.hasVideo.getValue();
 
   if (hasVideo) {
-    const videoUrl = picked.id.properties.videoUrl.getValue();
-    showPopup(videoUrl);
+
+      const videoUrl =
+          entity.properties.videoUrl.getValue();
+
+      showPopup(videoUrl);
+
   }
-}, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+},
+Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
 /* ------------------------------------------------
    5️⃣ POPUP + VIDEO + ROLE CHECK
