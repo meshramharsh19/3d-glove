@@ -6,11 +6,19 @@ let selectedHouseId = null;
 let selectedHouseData = null;
 let selectedHouseAliases = [];
 let bannerUiPositionRaf = null;
+let lastBannerModalTrigger = null;
+const bannerDatePickerState = {
+  monthCursor: new Date(),
+  selectedIsoDate: "",
+};
 
 scheduleBannerUiPosition();
 
 window.addEventListener("resize", scheduleBannerUiPosition);
-document.addEventListener("DOMContentLoaded", scheduleBannerUiPosition);
+document.addEventListener("DOMContentLoaded", () => {
+  scheduleBannerUiPosition();
+  initBannerDatePicker();
+});
 
 // Show button after selecting house
 function showAddBannerButton(idOrEntity) {
@@ -26,12 +34,10 @@ function showAddBannerButton(idOrEntity) {
 
   renderSelectedHouseData(selectedHouseId, selectedHouseData);
 
-  const btn = document.getElementById("addBannerBtn");
   const section = document.getElementById("bannerSection");
 
-  if (!btn || !section) return;
+  if (!section) return;
 
-  btn.style.display = "block";
   section.classList.add("banner-visible");
 
   scheduleBannerUiPosition();
@@ -210,16 +216,266 @@ function openBannerModal() {
 
   const houseIdInput = document.getElementById("bannerHouseId");
   const modal = document.getElementById("bannerModal");
+  const titleInput = document.getElementById("bannerTitle");
+
+  if (document.activeElement instanceof HTMLElement) {
+    lastBannerModalTrigger = document.activeElement;
+  }
 
   if (houseIdInput) houseIdInput.value = selectedHouseId;
-  if (modal) modal.style.display = "block";
+  initBannerDatePicker();
+  if (modal) {
+    modal.classList.add("is-open");
+    modal.setAttribute("aria-hidden", "false");
+  }
+
+  titleInput?.focus();
 }
 
 // Close Modal
 function closeBannerModal() {
   const modal = document.getElementById("bannerModal");
-  if (modal) modal.style.display = "none";
+  setBannerDateCalendarOpen(false);
+
+  if (modal) {
+    if (document.activeElement instanceof HTMLElement && modal.contains(document.activeElement)) {
+      document.activeElement.blur();
+    }
+
+    modal.classList.remove("is-open");
+    modal.setAttribute("aria-hidden", "true");
+  }
+
+  if (lastBannerModalTrigger && document.body.contains(lastBannerModalTrigger)) {
+    lastBannerModalTrigger.focus();
+    return;
+  }
+
+  const fallbackTrigger = document.getElementById("bannerSectionAddBtn");
+  fallbackTrigger?.focus();
 }
+
+function initBannerDatePicker() {
+  const picker = document.getElementById("bannerDatePicker");
+  const displayInput = document.getElementById("bannerDateDisplay");
+  const hiddenInput = document.getElementById("bannerDate");
+  const toggleButton = document.getElementById("bannerDateToggle");
+  const calendar = document.getElementById("bannerDateCalendar");
+
+  if (!picker || !displayInput || !hiddenInput || !toggleButton || !calendar) return;
+  if (picker.dataset.datePickerBound === "true") return;
+
+  picker.dataset.datePickerBound = "true";
+
+  picker.addEventListener("click", (event) => {
+    event.stopPropagation();
+  });
+
+  setBannerDateValue(hiddenInput.value || "", false);
+
+  const toggleCalendar = () => {
+    const isOpen = !calendar.hasAttribute("hidden");
+    setBannerDateCalendarOpen(!isOpen);
+  };
+
+  displayInput.addEventListener("click", toggleCalendar);
+
+  toggleButton.addEventListener("click", (event) => {
+    event.preventDefault();
+    toggleCalendar();
+  });
+
+  document.addEventListener("click", (event) => {
+    if (!picker.contains(event.target)) {
+      setBannerDateCalendarOpen(false);
+    }
+  });
+}
+
+function setBannerDateCalendarOpen(isOpen) {
+  const displayInput = document.getElementById("bannerDateDisplay");
+  const calendar = document.getElementById("bannerDateCalendar");
+
+  if (!displayInput || !calendar) return;
+
+  if (!isOpen) {
+    calendar.setAttribute("hidden", "");
+    displayInput.setAttribute("aria-expanded", "false");
+    return;
+  }
+
+  renderBannerDateCalendar();
+  calendar.removeAttribute("hidden");
+  displayInput.setAttribute("aria-expanded", "true");
+}
+
+function setBannerDateValue(isoDate, shouldCloseCalendar = true) {
+  const hiddenInput = document.getElementById("bannerDate");
+  const displayInput = document.getElementById("bannerDateDisplay");
+
+  if (!hiddenInput || !displayInput) return;
+
+  const normalizedIso = normalizeBannerIsoDate(isoDate);
+  bannerDatePickerState.selectedIsoDate = normalizedIso;
+
+  if (normalizedIso) {
+    hiddenInput.value = normalizedIso;
+    displayInput.value = formatIsoDateForBannerDisplay(normalizedIso);
+    const [year, month] = normalizedIso.split("-");
+    bannerDatePickerState.monthCursor = new Date(Number(year), Number(month) - 1, 1);
+  } else {
+    hiddenInput.value = "";
+    displayInput.value = "";
+    bannerDatePickerState.monthCursor = new Date();
+  }
+
+  if (shouldCloseCalendar) {
+    setBannerDateCalendarOpen(false);
+  }
+}
+
+function renderBannerDateCalendar() {
+  const calendar = document.getElementById("bannerDateCalendar");
+  if (!calendar) return;
+
+  const monthCursor = bannerDatePickerState.monthCursor || new Date();
+  const year = monthCursor.getFullYear();
+  const month = monthCursor.getMonth();
+  const firstDay = new Date(year, month, 1);
+  const firstWeekDay = firstDay.getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const monthLabel = firstDay.toLocaleDateString("en-US", {
+    month: "long",
+    year: "numeric",
+  });
+
+  const weekdayLabels = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+  const weekdayMarkup = weekdayLabels.map((label) => `<span>${label}</span>`).join("");
+
+  const todayIso = buildIsoDateFromParts(
+    new Date().getFullYear(),
+    new Date().getMonth(),
+    new Date().getDate()
+  );
+
+  const emptyLeadingDays = Array.from({ length: firstWeekDay })
+    .map(() => '<span class="banner-date-day-empty"></span>')
+    .join("");
+
+  const dayButtons = Array.from({ length: daysInMonth }, (_, index) => {
+    const dayNumber = index + 1;
+    const isoDate = buildIsoDateFromParts(year, month, dayNumber);
+    const isToday = isoDate === todayIso;
+    const isSelected = isoDate === bannerDatePickerState.selectedIsoDate;
+    const dayClass = [
+      "banner-date-day",
+      isToday ? "is-today" : "",
+      isSelected ? "is-selected" : "",
+    ]
+      .filter(Boolean)
+      .join(" ");
+
+    return `<button type="button" class="${dayClass}" data-date="${isoDate}">${dayNumber}</button>`;
+  }).join("");
+
+  calendar.innerHTML = `<div class="banner-date-calendar-header">
+    <span class="banner-date-calendar-title">${monthLabel}</span>
+    <div class="banner-date-calendar-nav">
+      <button type="button" data-nav="prev" aria-label="Previous month">&#x2039;</button>
+      <button type="button" data-nav="next" aria-label="Next month">&#x203A;</button>
+    </div>
+  </div>
+  <div class="banner-date-calendar-weekdays">${weekdayMarkup}</div>
+  <div class="banner-date-calendar-days">${emptyLeadingDays}${dayButtons}</div>`;
+
+  const prevButton = calendar.querySelector('button[data-nav="prev"]');
+  const nextButton = calendar.querySelector('button[data-nav="next"]');
+
+  prevButton?.addEventListener("click", () => {
+    bannerDatePickerState.monthCursor = new Date(year, month - 1, 1);
+    renderBannerDateCalendar();
+  });
+
+  nextButton?.addEventListener("click", () => {
+    bannerDatePickerState.monthCursor = new Date(year, month + 1, 1);
+    renderBannerDateCalendar();
+  });
+
+  calendar.querySelectorAll("button[data-date]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const isoDate = button.getAttribute("data-date") || "";
+      setBannerDateValue(isoDate);
+    });
+  });
+}
+
+function normalizeBannerIsoDate(value) {
+  if (!value) return "";
+
+  const rawValue = String(value).trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(rawValue)) return "";
+
+  const [yearText, monthText, dayText] = rawValue.split("-");
+  const year = Number(yearText);
+  const month = Number(monthText);
+  const day = Number(dayText);
+
+  const testDate = new Date(year, month - 1, day);
+  const isValid =
+    testDate.getFullYear() === year &&
+    testDate.getMonth() === month - 1 &&
+    testDate.getDate() === day;
+
+  return isValid ? rawValue : "";
+}
+
+function buildIsoDateFromParts(year, monthIndex, dayOfMonth) {
+  const month = String(monthIndex + 1).padStart(2, "0");
+  const day = String(dayOfMonth).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function formatIsoDateForBannerDisplay(isoDate) {
+  const normalizedIso = normalizeBannerIsoDate(isoDate);
+  if (!normalizedIso) return "";
+
+  const [year, month, day] = normalizedIso.split("-");
+  const monthNames = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+
+  const monthLabel = monthNames[Number(month) - 1] || month;
+  return `${Number(day)} ${monthLabel} ${year}`;
+}
+
+document.addEventListener("click", (event) => {
+  const modal = document.getElementById("bannerModal");
+  if (!modal || !modal.classList.contains("is-open")) return;
+
+  if (event.target === modal) {
+    closeBannerModal();
+  }
+});
+
+document.addEventListener("keydown", (event) => {
+  if (event.key !== "Escape") return;
+
+  const modal = document.getElementById("bannerModal");
+  if (modal && modal.classList.contains("is-open")) {
+    closeBannerModal();
+  }
+});
 
 // Save Banner to MongoDB
 async function saveBanner() {
@@ -251,6 +507,16 @@ async function saveBanner() {
 
     alert("Banner Saved Successfully");
     closeBannerModal();
+    const titleInput = document.getElementById("bannerTitle");
+    const typeInput = document.getElementById("bannerType");
+    const dateDisplayInput = document.getElementById("bannerDateDisplay");
+
+    if (titleInput) titleInput.value = "";
+    if (typeInput) typeInput.value = "";
+    if (dateDisplayInput) {
+      setBannerDateValue("", false);
+    }
+
     loadBannerListByAliases(selectedHouseAliases);
   } catch (error) {
     console.error("Save banner error:", error);
@@ -376,10 +642,9 @@ function scheduleBannerUiPosition() {
 }
 
 function positionBannerUi() {
-  const btn = document.getElementById("addBannerBtn");
   const section = document.getElementById("bannerSection");
 
-  if (!btn || !section) return;
+  if (!section) return;
 
   const rail = document.querySelector(".map-rail");
   const topbar = document.getElementById("topbar");
@@ -398,7 +663,6 @@ function positionBannerUi() {
     sectionTop = Math.max(minTop, Math.round(topbarBottom + 12));
   }
 
-  btn.style.right = `${rightOffset}px`;
   section.style.right = `${rightOffset}px`;
 
   const sectionHeight = section.offsetHeight || 220;
@@ -407,12 +671,6 @@ function positionBannerUi() {
   sectionTop = Math.max(minTop, Math.min(sectionTop, maxSectionTop));
   section.style.top = `${sectionTop}px`;
 
-  const buttonHeight = btn.offsetHeight || 36;
-  const buttonGap = 8;
-  const preferredButtonTop = sectionTop + sectionHeight + buttonGap;
-  const maxButtonTop = Math.max(minTop, Math.round(window.innerHeight - buttonHeight - 10));
-  const buttonTop = Math.max(minTop, Math.min(preferredButtonTop, maxButtonTop));
-  btn.style.top = `${buttonTop}px`;
 }
 
 // Show Banner Details
