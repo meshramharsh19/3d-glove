@@ -1072,25 +1072,37 @@ input[type="range"]::-moz-range-thumb {
   right: 64px;
   display: none;
   z-index: 1590;
-  height: 42px;
-  padding: 0 16px;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 99, 116, 0.62);
-  background: linear-gradient(180deg, #ff4b5f, #d82f46);
-  color: #fff5f7;
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(104, 166, 255, 0.42);
+  background: linear-gradient(180deg, #3a8efc, #2a6fd8);
+  color: #eef6ff;
   font-family: "Sora", sans-serif;
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.2px;
+  line-height: 1;
   cursor: pointer;
-  box-shadow: 0 12px 24px rgba(104, 17, 34, 0.45);
+  box-shadow:
+    0 8px 18px rgba(18, 54, 114, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.26);
   transition: transform 0.18s ease, filter 0.18s ease, box-shadow 0.18s ease;
+}
+
+.banner-add-btn::before {
+  content: "+";
+  margin-right: 5px;
+  font-size: 11px;
+  font-weight: 700;
 }
 
 .banner-add-btn:hover {
   transform: translateY(-1px);
-  filter: brightness(1.06);
-  box-shadow: 0 14px 28px rgba(118, 21, 40, 0.5);
+  filter: brightness(1.04);
+  box-shadow:
+    0 10px 20px rgba(24, 73, 146, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
 .banner-add-btn:active {
@@ -1101,24 +1113,31 @@ input[type="range"]::-moz-range-thumb {
   position: fixed;
   top: calc(var(--topbar-height) + 136px);
   right: 64px;
-  width: 250px;
-  max-height: 280px;
+  display: none;
+  width: 292px;
+  max-height: min(440px, calc(100vh - 110px));
   z-index: 1585;
-  border-radius: 14px;
+  border-radius: 13px;
   border: 1px solid rgba(108, 159, 240, 0.28);
   background:
     radial-gradient(circle at 85% -20%, rgba(81, 150, 255, 0.18), transparent 48%),
     linear-gradient(180deg, rgba(13, 26, 48, 0.96), rgba(8, 18, 35, 0.96));
-  box-shadow: 0 16px 34px rgba(3, 10, 20, 0.46);
+  box-shadow:
+    0 14px 30px rgba(3, 10, 20, 0.42),
+    0 0 0 1px rgba(120, 164, 232, 0.06);
   overflow: hidden;
   backdrop-filter: blur(8px);
+}
+
+.banner-section.banner-visible {
+  display: block;
 }
 
 .banner-section-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 12px;
+  padding: 10px 13px;
   border-bottom: 1px solid rgba(106, 154, 228, 0.24);
   background: rgba(10, 22, 41, 0.68);
 }
@@ -1126,26 +1145,111 @@ input[type="range"]::-moz-range-thumb {
 .banner-section-header h4 {
   margin: 0;
   font-family: "Sora", sans-serif;
-  font-size: 12px;
+  font-size: 13px;
   letter-spacing: 0.2px;
   color: #d8e9ff;
+}
+
+.selected-house-card {
+  margin: 8px;
+  padding: 8px;
+  border-radius: 10px;
+  border: 1px solid rgba(111, 159, 236, 0.26);
+  background: rgba(12, 25, 47, 0.82);
+  max-height: 136px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(109, 160, 239, 0.38) transparent;
+}
+
+.selected-house-card::-webkit-scrollbar {
+  width: 6px;
+}
+
+.selected-house-card::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.selected-house-card::-webkit-scrollbar-thumb {
+  background: rgba(109, 160, 239, 0.28);
+  border-radius: 999px;
+}
+
+.selected-house-card:hover::-webkit-scrollbar-thumb {
+  background: rgba(125, 178, 255, 0.52);
+}
+
+.selected-house-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: #9fc3f2;
+  margin-bottom: 8px;
+}
+
+.selected-house-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.selected-house-row {
+  display: grid;
+  grid-template-columns: 64px 1fr;
+  align-items: start;
+  gap: 6px;
+}
+
+.selected-house-label {
+  font-size: 10px;
+  color: #7ca2d4;
+}
+
+.selected-house-value {
+  font-size: 11px;
+  color: #d7e8ff;
+  white-space: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-word;
+}
+
+#houseDataAddress {
+  max-height: 2.8em;
+  display: -webkit-box;
+  line-clamp: 2;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 
 .banner-list {
   list-style: none;
   margin: 0;
-  padding: 8px;
-  max-height: 230px;
+  padding: 9px;
+  max-height: min(250px, calc(100vh - 330px));
+  min-height: 132px;
   overflow-y: auto;
+  border-top: 1px solid rgba(105, 153, 229, 0.2);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(117, 170, 247, 0.4) transparent;
 }
 
 .banner-list::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
+}
+
+.banner-list::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 .banner-list::-webkit-scrollbar-thumb {
-  background: rgba(116, 162, 232, 0.36);
+  background: rgba(116, 162, 232, 0.3);
   border-radius: 999px;
+}
+
+.banner-list:hover::-webkit-scrollbar-thumb {
+  background: rgba(137, 187, 255, 0.56);
 }
 
 .banner-empty-state {
@@ -1419,10 +1523,10 @@ body.light-theme .header-searchbox button {
 }
 
 body.light-theme .banner-add-btn {
-  border-color: rgba(228, 88, 104, 0.54);
-  background: linear-gradient(180deg, #ff6474, #dd4158);
-  color: #fff8f9;
-  box-shadow: 0 10px 22px rgba(170, 61, 80, 0.26);
+  border-color: rgba(92, 149, 225, 0.5);
+  background: linear-gradient(180deg, #5aa5ff, #3a7de0);
+  color: #f7fbff;
+  box-shadow: 0 8px 18px rgba(66, 111, 180, 0.26);
 }
 
 body.light-theme .banner-section {
@@ -1440,6 +1544,32 @@ body.light-theme .banner-section-header {
 
 body.light-theme .banner-section-header h4 {
   color: #2d4f82;
+}
+
+body.light-theme .selected-house-card {
+  border-color: rgba(94, 138, 209, 0.28);
+  background: rgba(230, 241, 255, 0.78);
+  scrollbar-color: rgba(102, 146, 214, 0.52) transparent;
+}
+
+body.light-theme .selected-house-card::-webkit-scrollbar-thumb {
+  background: rgba(95, 140, 210, 0.34);
+}
+
+body.light-theme .selected-house-card:hover::-webkit-scrollbar-thumb {
+  background: rgba(82, 131, 208, 0.56);
+}
+
+body.light-theme .selected-house-title {
+  color: #476eaa;
+}
+
+body.light-theme .selected-house-label {
+  color: #5478aa;
+}
+
+body.light-theme .selected-house-value {
+  color: #2a4a78;
 }
 
 body.light-theme .banner-empty-state {
@@ -1464,6 +1594,18 @@ body.light-theme .banner-item-title {
 
 body.light-theme .banner-item-meta {
   color: #5574a3;
+}
+
+body.light-theme .banner-list {
+  scrollbar-color: rgba(100, 148, 220, 0.46) transparent;
+}
+
+body.light-theme .banner-list::-webkit-scrollbar-thumb {
+  background: rgba(98, 145, 216, 0.34);
+}
+
+body.light-theme .banner-list:hover::-webkit-scrollbar-thumb {
+  background: rgba(83, 132, 210, 0.54);
 }
 
 body.light-theme .brand-title,
@@ -1533,20 +1675,21 @@ body.sidebar-collapsed #map-wrapper {
   .banner-add-btn {
     right: 56px;
     top: calc(var(--topbar-height) + 72px);
-    height: 38px;
+    height: 34px;
     padding: 0 12px;
-    font-size: 11px;
+    font-size: 10px;
   }
 
   .banner-section {
     right: 56px;
     top: calc(var(--topbar-height) + 116px);
-    width: min(260px, calc(100vw - 16px));
-    max-height: 220px;
+    width: min(292px, calc(100vw - 16px));
+    max-height: min(360px, calc(100vh - 90px));
   }
 
   .banner-list {
-    max-height: 170px;
+    max-height: min(190px, calc(100vh - 250px));
+    min-height: 110px;
   }
 
   .sidebar-edge-toggle {

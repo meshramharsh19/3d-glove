@@ -83,11 +83,8 @@ handler.setInputAction(function (click) {
       housesDataSource.entities.contains(clickedEntity)
     ) {
 
-      const houseId =
-        clickedEntity.name;
-
       const propertyData =
-        getCustomHouseData(houseId);
+        getCustomHouseData(clickedEntity);
 
       addPinAndFlyToEntity(
         clickedEntity,
@@ -95,7 +92,7 @@ handler.setInputAction(function (click) {
       );
 
       // ✅ SHOW BUTTON
-      showAddBannerButton(houseId);
+      showAddBannerButton(clickedEntity);
 
     }
 
