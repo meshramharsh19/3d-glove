@@ -7,6 +7,7 @@ let selectedHouseData = null;
 let selectedHouseAliases = [];
 let bannerUiPositionRaf = null;
 let lastBannerModalTrigger = null;
+let bannerOpenAnimationResetTimer = null;
 const bannerDatePickerState = {
   monthCursor: new Date(),
   selectedIsoDate: "",
@@ -39,9 +40,29 @@ function showAddBannerButton(idOrEntity) {
   if (!section) return;
 
   section.classList.add("banner-visible");
+  triggerBannerSectionOpenAnimation(section);
 
   scheduleBannerUiPosition();
   loadBannerListByAliases(selectedHouseAliases);
+}
+
+function triggerBannerSectionOpenAnimation(section) {
+  if (!section) return;
+
+  if (bannerOpenAnimationResetTimer) {
+    window.clearTimeout(bannerOpenAnimationResetTimer);
+    bannerOpenAnimationResetTimer = null;
+  }
+
+  section.classList.remove("banner-opening");
+  // Force reflow so animation restarts on each new selection.
+  void section.offsetWidth;
+  section.classList.add("banner-opening");
+
+  bannerOpenAnimationResetTimer = window.setTimeout(() => {
+    section.classList.remove("banner-opening");
+    bannerOpenAnimationResetTimer = null;
+  }, 420);
 }
 
 function renderSelectedHouseData(houseId, inputHouseData = null) {
