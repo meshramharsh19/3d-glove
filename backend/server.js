@@ -80,6 +80,8 @@ const io = new Server(server, {
 
 require("./socket")(io);
 
+const poleRoutes = require("./routes/poleRoutes");
+
 // =========================
 // Save Banner API
 // =========================
@@ -147,6 +149,12 @@ app.get("/api/banners/:houseId", async (req, res) => {
   }
 
 });
+
+// =========================
+// Save Poles API
+// =========================
+
+app.use("/api/poles", poleRoutes);
 
 // =========================
 // Serve Static Files

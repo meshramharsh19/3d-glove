@@ -10,6 +10,7 @@ Cesium.Ion.defaultAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOi
             shadows: false,
             sceneMode: Cesium.SceneMode.SCENE3D
         });
+        window.viewer = viewer;
 
         // Disable default double-click behavior
         viewer.cesiumWidget.screenSpaceEventHandler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
