@@ -17,6 +17,11 @@ const poleSchema = new mongoose.Schema({
     type: Number,
     min: 0,
   },
+  wireHeading: {
+    type: Number,
+    min: 0,
+    max: 360,
+  },
   installationDate: {
     type: Date,
   },

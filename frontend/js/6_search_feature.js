@@ -47,6 +47,13 @@ function renderPoleSuggestions(resultsContainer, rawQuery) {
         window.focusPoleByNumber(suggestion.poleNumber);
       }
 
+      if (typeof window.showPoleDetailsPanel === "function") {
+        const poleData = typeof window.getPoleDataByNumber === "function"
+          ? window.getPoleDataByNumber(suggestion.poleNumber)
+          : null;
+        window.showPoleDetailsPanel(poleData || suggestion);
+      }
+
       if (results) {
         results.innerHTML = "";
       }

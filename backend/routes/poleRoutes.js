@@ -14,6 +14,7 @@ router.post("/add-pole", async (req, res) => {
       type,
       voltage,
       poleHeight,
+      wireHeading,
       installationDate,
       position,
       x,
@@ -44,6 +45,13 @@ router.post("/add-pole", async (req, res) => {
       });
     }
 
+    if (wireHeading !== undefined && !isFiniteNumber(wireHeading)) {
+      return res.status(400).json({
+        success: false,
+        message: "wireHeading must be a valid number",
+      });
+    }
+
     if (installationDate) {
       const parsedDate = new Date(installationDate);
       if (Number.isNaN(parsedDate.getTime())) {
@@ -59,6 +67,7 @@ router.post("/add-pole", async (req, res) => {
       type,
       voltage,
       poleHeight,
+      wireHeading,
       installationDate: installationDate ? new Date(installationDate) : undefined,
       position: hasGeodeticPosition
         ? {

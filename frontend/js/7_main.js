@@ -144,6 +144,8 @@ Cesium.ScreenSpaceEventType.LEFT_CLICK);
 const streetViewHandler =
   new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
 
+let streetViewClickCount = 0;
+
 streetViewHandler.setInputAction((movement) => {
 
   const cartesian = viewer.scene.pickPosition(movement.position);
@@ -158,6 +160,13 @@ streetViewHandler.setInputAction((movement) => {
   // Save globally
   window.streetViewState.lat = lat;
   window.streetViewState.lon = lon;
+
+  streetViewClickCount += 1;
+  if (streetViewClickCount < 2) {
+    return;
+  }
+
+  streetViewClickCount = 0;
 
   console.log("Global StreetView location:", lat, lon);
 
