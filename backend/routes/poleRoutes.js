@@ -3,18 +3,76 @@ const Pole = require("../models/Pole");
 
 const router = express.Router();
 
+function isFiniteNumber(value) {
+  return typeof value === "number" && Number.isFinite(value);
+}
+
 router.post("/add-pole", async (req, res) => {
   try {
-    const { x, y, z } = req.body;
+    const {
+      poleNumber,
+      type,
+      voltage,
+      poleHeight,
+      installationDate,
+      position,
+      x,
+      y,
+      z,
+    } = req.body;
 
-    if ([x, y, z].some((value) => typeof value !== "number" || Number.isNaN(value))) {
+    const hasGeodeticPosition =
+      position &&
+      isFiniteNumber(position.longitude) &&
+      isFiniteNumber(position.latitude) &&
+      isFiniteNumber(position.height ?? 0);
+
+    const hasLegacyCartesian = [x, y, z].every(isFiniteNumber);
+
+    if (!hasGeodeticPosition && !hasLegacyCartesian) {
       return res.status(400).json({
         success: false,
-        message: "x, y, z must be valid numbers",
+        message:
+          "Provide either position.longitude/latitude/height or legacy x, y, z coordinates",
       });
     }
 
-    const pole = await Pole.create({ x, y, z });
+    if (poleHeight !== undefined && !isFiniteNumber(poleHeight)) {
+      return res.status(400).json({
+        success: false,
+        message: "poleHeight must be a valid number",
+      });
+    }
+
+    if (installationDate) {
+      const parsedDate = new Date(installationDate);
+      if (Number.isNaN(parsedDate.getTime())) {
+        return res.status(400).json({
+          success: false,
+          message: "installationDate must be a valid date",
+        });
+      }
+    }
+
+    const payload = {
+      poleNumber,
+      type,
+      voltage,
+      poleHeight,
+      installationDate: installationDate ? new Date(installationDate) : undefined,
+      position: hasGeodeticPosition
+        ? {
+            longitude: position.longitude,
+            latitude: position.latitude,
+            height: position.height ?? 0,
+          }
+        : undefined,
+      x: hasLegacyCartesian ? x : undefined,
+      y: hasLegacyCartesian ? y : undefined,
+      z: hasLegacyCartesian ? z : undefined,
+    };
+
+    const pole = await Pole.create(payload);
 
     return res.status(201).json({
       success: true,

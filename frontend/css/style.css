@@ -1207,6 +1207,28 @@ input[type="range"]::-moz-range-thumb {
   }
 }
 
+.search-result-badge {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 3px;
+  margin-left: 6px;
+  letter-spacing: 0.4px;
+}
+
+.search-result-badge.pole {
+  background: rgba(100, 200, 255, 0.3);
+  color: #64c8ff;
+  border: 1px solid rgba(100, 200, 255, 0.4);
+}
+
+.search-result-badge.property {
+  background: rgba(255, 150, 100, 0.3);
+  color: #ff9664;
+  border: 1px solid rgba(255, 150, 100, 0.4);
+}
+
 .banner-section-header {
   display: flex;
   align-items: center;

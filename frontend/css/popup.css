@@ -70,3 +70,123 @@
 .hidden {
     display: none;
 }
+
+.pole-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(4, 10, 20, 0.58);
+    backdrop-filter: blur(4px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9998;
+    padding: 18px;
+}
+
+.pole-modal.is-open {
+    display: flex;
+}
+
+.pole-modal-card {
+    width: min(560px, 96vw);
+    max-height: 92vh;
+    overflow: auto;
+    border-radius: 16px;
+    border: 1px solid rgba(119, 173, 255, 0.3);
+    background: linear-gradient(180deg, rgba(11, 25, 47, 0.96), rgba(7, 16, 32, 0.96));
+    box-shadow: 0 24px 54px rgba(0, 0, 0, 0.45);
+}
+
+.pole-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    border-bottom: 1px solid rgba(119, 173, 255, 0.22);
+}
+
+.pole-modal-header h3 {
+    margin: 0;
+    font-size: 17px;
+    color: #dcebff;
+}
+
+.pole-modal-close {
+    border: none;
+    background: transparent;
+    color: #9fbbdf;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.pole-modal-body {
+    padding: 16px;
+    display: grid;
+    gap: 12px;
+}
+
+.pole-modal-field-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.pole-modal-field {
+    display: grid;
+    gap: 6px;
+}
+
+.pole-modal-field label {
+    font-size: 12px;
+    color: #9fc0e9;
+    font-weight: 600;
+}
+
+.pole-modal-field input {
+    height: 38px;
+    border-radius: 10px;
+    border: 1px solid rgba(113, 165, 243, 0.26);
+    background: rgba(9, 23, 43, 0.88);
+    color: #e9f4ff;
+    padding: 0 10px;
+}
+
+.pole-modal-field input[readonly] {
+    color: #b2caea;
+    background: rgba(8, 19, 36, 0.95);
+}
+
+.pole-modal-actions {
+    margin-top: 4px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.pole-modal-save,
+.pole-modal-cancel {
+    height: 38px;
+    border-radius: 10px;
+    padding: 0 14px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.pole-modal-save {
+    color: #eaf4ff;
+    background: linear-gradient(180deg, #3a90ff, #2464cb);
+    border-color: rgba(119, 173, 255, 0.52);
+}
+
+.pole-modal-cancel {
+    color: #adc9eb;
+    background: rgba(11, 28, 54, 0.85);
+    border-color: rgba(116, 166, 237, 0.35);
+}
+
+@media (max-width: 640px) {
+    .pole-modal-field-row {
+        grid-template-columns: 1fr;
+    }
+}

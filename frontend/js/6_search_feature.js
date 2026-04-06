@@ -7,6 +7,57 @@
 let dbSearchPolygons = []; // track DB-drawn polygons for search
 const ptaxDatabase = window.ptaxDatabase || {};
 
+function renderPoleSuggestions(resultsContainer, rawQuery) {
+  if (typeof window.getPoleSuggestions !== "function") {
+    return 0;
+  }
+
+  const suggestions = window.getPoleSuggestions(rawQuery, 8);
+  if (!Array.isArray(suggestions) || suggestions.length === 0) {
+    return 0;
+  }
+
+  suggestions.forEach((suggestion) => {
+    const item = document.createElement("div");
+    item.className = "search-result-item";
+
+    item.innerHTML = `
+<div style="display: flex; align-items: center; justify-content: space-between;">
+  <div>
+    <strong>pole:${suggestion.poleNumber}</strong>
+    <span class="search-result-badge pole">POLE</span><br>
+    <small>${suggestion.type} | ${suggestion.voltage}</small>
+  </div>
+</div>
+`;
+
+    item.onclick = () => {
+      const searchInput = document.getElementById("searchInput");
+      const results = document.getElementById("search-results");
+
+      if (searchInput) {
+        searchInput.value = `pole:${suggestion.poleNumber}`;
+      }
+
+      if (typeof window.filterPolesByQuery === "function") {
+        window.filterPolesByQuery(`pole:${suggestion.poleNumber}`);
+      }
+
+      if (typeof window.focusPoleByNumber === "function") {
+        window.focusPoleByNumber(suggestion.poleNumber);
+      }
+
+      if (results) {
+        results.innerHTML = "";
+      }
+    };
+
+    resultsContainer.appendChild(item);
+  });
+
+  return suggestions.length;
+}
+
 // ======================================================
 // === NAYA HELPER FUNCTION: Property ke liye Pin URL ===
 // ======================================================
@@ -81,6 +132,16 @@ function searchProperties() {
   const resultsContainer = document.getElementById("search-results");
   resultsContainer.innerHTML = ""; // Clear previous results
 
+  const poleSuggestionCount = renderPoleSuggestions(resultsContainer, query);
+
+  if (query.startsWith("pole:")) {
+    if (poleSuggestionCount === 0) {
+      resultsContainer.innerHTML =
+        '<div class="search-no-results">No poles found.</div>';
+    }
+    return;
+  }
+
   if (!query) {
     return; // Don't search for empty strings
   }
@@ -147,8 +208,10 @@ for (const houseId in window.ptaxDatabase){
 
   // Display results
   if (matches.length === 0) {
-    resultsContainer.innerHTML =
-      '<div class="search-no-results">No results found.</div>';
+    if (poleSuggestionCount === 0) {
+      resultsContainer.innerHTML =
+        '<div class="search-no-results">No results found.</div>';
+    }
   } else {
     // Limit to 50 results for performance
     matches.slice(0, 50).forEach((match) => {
@@ -167,8 +230,13 @@ const owner =
   "";
 
 item.innerHTML = `
-<strong>${propertyNo}</strong><br>
-<small>${owner}</small>
+<div style="display: flex; align-items: center; justify-content: space-between;">
+  <div>
+    <strong>${propertyNo}</strong>
+    <span class="search-result-badge property">PROPERTY</span><br>
+    <small>${owner}</small>
+  </div>
+</div>
 `;
 
       // Click → camera fly
