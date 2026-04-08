@@ -57,10 +57,10 @@
     <div class="topbar-center">
       <div id="search-container" class="header-search-panel">
         <div class="header-searchbox">
-        <span class="header-search-icon">🔎</span>
-        <input type="text" id="searchInput" placeholder="Search property, owner or phone"
-          oninput="debounce(searchProperties, 300)()" onfocus="searchProperties()"
-          onkeydown="if(event.key==='Enter'){event.preventDefault();searchProperties();}" autocomplete="off" />
+          <span class="header-search-icon">🔎</span>
+          <input type="text" id="searchInput" placeholder="Search property, owner or phone"
+            oninput="debounce(searchProperties, 300)()" onfocus="searchProperties()"
+            onkeydown="if(event.key==='Enter'){event.preventDefault();searchProperties();}" autocomplete="off" />
         </div>
         <div id="search-results"></div>
       </div>
@@ -83,7 +83,8 @@
     </div>
   </header>
 
-  <button id="sidebarToggle" class="icon-btn sidebar-edge-toggle" title="Collapse sidebar" aria-label="Collapse sidebar">‹</button>
+  <button id="sidebarToggle" class="icon-btn sidebar-edge-toggle" title="Collapse sidebar"
+    aria-label="Collapse sidebar">‹</button>
 
   <!-- Loading Overlay -->
   <div id="loading-overlay" style="display: none">
@@ -192,7 +193,8 @@
         <button class="rail-btn" title="Ground" aria-label="Ground" onclick="resetToGroundLevel()">⏚</button>
         <button class="rail-btn" title="Center" aria-label="Center" onclick="centerOnModel()">◎</button>
         <button class="rail-btn" title="Free" aria-label="Free" onclick="optimizeMemory()">♻</button>
-        <button class="rail-btn" title="Street View" aria-label="Street View" onclick="openStreetViewFromMap()">👁</button>
+        <button class="rail-btn" title="Street View" aria-label="Street View"
+          onclick="openStreetViewFromMap()">👁</button>
       </div>
 
       <div class="map-statusbar" aria-label="Camera coordinates">
@@ -218,7 +220,7 @@
     </div>
   </div>
 
- 
+
 
 
   <!-- Scripts -->
@@ -251,201 +253,223 @@
   <!-- =========================
      Banner List Display
   ========================= -->
-  
-<div id="bannerSection" class="banner-section">
 
-  <div class="banner-section-header">
-    <h4>House &amp; Banners</h4>
-    <button id="bannerSectionAddBtn" class="banner-section-add-btn" type="button" onclick="openBannerModal()" aria-label="Add banner">
-      <span class="banner-section-add-icon" aria-hidden="true">+</span>
-    </button>
-  </div>
+  <div id="bannerSection" class="banner-section">
 
-  <div id="selectedHouseCard" class="selected-house-card">
-    <div class="selected-house-title">House Details</div>
-    <div class="selected-house-grid" id="selectedHouseGrid">
-      <div class="selected-house-row">
-        <span class="selected-house-label">ID</span>
-        <span class="selected-house-value" id="houseDataId">-</span>
-      </div>
-      <div class="selected-house-row">
-        <span class="selected-house-label">Owner</span>
-        <span class="selected-house-value" id="houseDataOwner">-</span>
-      </div>
-      <div class="selected-house-row">
-        <span class="selected-house-label">Property</span>
-        <span class="selected-house-value" id="houseDataProperty">-</span>
-      </div>
-      <div class="selected-house-row">
-        <span class="selected-house-label">Type</span>
-        <span class="selected-house-value" id="houseDataType">-</span>
-      </div>
-      <div class="selected-house-row">
-        <span class="selected-house-label">Contact</span>
-        <span class="selected-house-value" id="houseDataMobile">-</span>
-      </div>
-      <div class="selected-house-row">
-        <span class="selected-house-label">Address</span>
-        <span class="selected-house-value" id="houseDataAddress">-</span>
+    <div class="banner-section-header">
+      <h4>House &amp; Banners</h4>
+      <button id="bannerSectionAddBtn" class="banner-section-add-btn" type="button" onclick="openBannerModal()"
+        aria-label="Add banner">
+        <span class="banner-section-add-icon" aria-hidden="true">+</span>
+      </button>
+    </div>
+
+    <div id="selectedHouseCard" class="selected-house-card">
+      <div class="selected-house-title">House Details</div>
+      <div class="selected-house-grid" id="selectedHouseGrid">
+        <div class="selected-house-row">
+          <span class="selected-house-label">ID</span>
+          <span class="selected-house-value" id="houseDataId">-</span>
+        </div>
+        <div class="selected-house-row">
+          <span class="selected-house-label">Owner</span>
+          <span class="selected-house-value" id="houseDataOwner">-</span>
+        </div>
+        <div class="selected-house-row">
+          <span class="selected-house-label">Property</span>
+          <span class="selected-house-value" id="houseDataProperty">-</span>
+        </div>
+        <div class="selected-house-row">
+          <span class="selected-house-label">Type</span>
+          <span class="selected-house-value" id="houseDataType">-</span>
+        </div>
+        <div class="selected-house-row">
+          <span class="selected-house-label">Contact</span>
+          <span class="selected-house-value" id="houseDataMobile">-</span>
+        </div>
+        <div class="selected-house-row">
+          <span class="selected-house-label">Address</span>
+          <span class="selected-house-value" id="houseDataAddress">-</span>
+        </div>
       </div>
     </div>
+
+    <div id="bannerListCard" class="selected-house-card banner-list-card">
+      <div class="selected-house-title banner-list-title">Banners</div>
+      <ul id="bannerList" class="banner-list">
+        <li class="banner-empty-state">
+          No banners yet
+        </li>
+      </ul>
+    </div>
+
   </div>
 
-  <div id="bannerListCard" class="selected-house-card banner-list-card">
-    <div class="selected-house-title banner-list-title">Banners</div>
-    <ul id="bannerList" class="banner-list">
-      <li class="banner-empty-state">
-        No banners yet
-      </li>
-    </ul>
-  </div>
-  
-  </div>
-
-<!-- =========================
+  <!-- =========================
    Banner Modal Form
 ========================= -->
 
-<div id="bannerModal" class="banner-modal" aria-hidden="true">
-  <div class="banner-modal-card" role="dialog" aria-modal="true" aria-labelledby="bannerModalTitle">
-    <div class="banner-modal-header">
-      <h3 id="bannerModalTitle">Add Banner</h3>
-      <button type="button" class="banner-modal-close" onclick="closeBannerModal()" aria-label="Close banner form">✕</button>
-    </div>
-
-    <div class="banner-modal-body">
-      <div class="banner-modal-field">
-        <label for="bannerHouseId">House ID</label>
-        <input type="text" id="bannerHouseId" placeholder="House ID" readonly />
+  <div id="bannerModal" class="banner-modal" aria-hidden="true">
+    <div class="banner-modal-card" role="dialog" aria-modal="true" aria-labelledby="bannerModalTitle">
+      <div class="banner-modal-header">
+        <h3 id="bannerModalTitle">Add Banner</h3>
+        <button type="button" class="banner-modal-close" onclick="closeBannerModal()"
+          aria-label="Close banner form">✕</button>
       </div>
 
-      <div class="banner-modal-field">
-        <label for="bannerTitle">Banner Title</label>
-        <input type="text" id="bannerTitle" placeholder="Enter banner title" />
-      </div>
+      <div class="banner-modal-body">
+        <div class="banner-modal-field">
+          <label for="bannerHouseId">House ID</label>
+          <input type="text" id="bannerHouseId" placeholder="House ID" readonly />
+        </div>
 
-      <div class="banner-modal-field">
-        <label for="bannerType">Banner Type</label>
-        <input type="text" id="bannerType" placeholder="Enter banner type" />
-      </div>
+        <div class="banner-modal-field">
+          <label for="bannerTitle">Banner Title</label>
+          <input type="text" id="bannerTitle" placeholder="Enter banner title" />
+        </div>
 
-      <div class="banner-modal-field">
-        <label for="bannerDateDisplay">Date</label>
-        <div class="banner-date-picker" id="bannerDatePicker">
-          <input type="text" id="bannerDateDisplay" placeholder="DD MMM YYYY" readonly aria-haspopup="dialog" aria-expanded="false" />
-          <input type="hidden" id="bannerDate" />
-          <button type="button" id="bannerDateToggle" class="banner-date-toggle" aria-label="Open calendar">📅</button>
-          <div id="bannerDateCalendar" class="banner-date-calendar" hidden></div>
+        <div class="banner-modal-field">
+          <label for="bannerType">Banner Type</label>
+          <input type="text" id="bannerType" placeholder="Enter banner type" />
+        </div>
+
+        <div class="banner-modal-field">
+          <label for="bannerDateDisplay">Date</label>
+          <div class="banner-date-picker" id="bannerDatePicker">
+            <input type="text" id="bannerDateDisplay" placeholder="DD MMM YYYY" readonly aria-haspopup="dialog"
+              aria-expanded="false" />
+            <input type="hidden" id="bannerDate" />
+            <button type="button" id="bannerDateToggle" class="banner-date-toggle"
+              aria-label="Open calendar">📅</button>
+            <div id="bannerDateCalendar" class="banner-date-calendar" hidden></div>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="banner-modal-actions">
-      <button type="button" class="banner-modal-save" onclick="saveBanner()">Save</button>
-      <button type="button" class="banner-modal-cancel" onclick="closeBannerModal()">Cancel</button>
-    </div>
-  </div>
-</div>
-
-<div id="poleSection" class="pole-section" aria-hidden="true">
-  <div class="pole-section-header">
-    <h4>Pole Details</h4>
-    <button type="button" id="poleSectionCloseBtn" class="pole-section-close" aria-label="Close pole details">✕</button>
-  </div>
-
-  <div id="selectedPoleCard" class="selected-house-card pole-card">
-    <div class="selected-house-title">Pole Info</div>
-    <div class="selected-house-grid">
-      <div class="selected-house-row">
-        <span class="selected-house-label">Number</span>
-        <span class="selected-house-value" id="poleDataNumber">-</span>
-      </div>
-      <div class="selected-house-row">
-        <span class="selected-house-label">Type</span>
-        <span class="selected-house-value" id="poleDataType">-</span>
-      </div>
-      <div class="selected-house-row">
-        <span class="selected-house-label">Voltage</span>
-        <span class="selected-house-value" id="poleDataVoltage">-</span>
-      </div>
-      <div class="selected-house-row">
-        <span class="selected-house-label">Height</span>
-        <span class="selected-house-value" id="poleDataHeight">-</span>
-      </div>
-      <div class="selected-house-row">
-        <span class="selected-house-label">Installed</span>
-        <span class="selected-house-value" id="poleDataDate">-</span>
-      </div>
-      <div class="selected-house-row">
-        <span class="selected-house-label">Heading</span>
-        <span class="selected-house-value" id="poleDataHeading">-</span>
-      </div>
-      <div class="selected-house-row">
-        <span class="selected-house-label">Coords</span>
-        <span class="selected-house-value" id="poleDataCoords">-</span>
+      <div class="banner-modal-actions">
+        <button type="button" class="banner-modal-save" onclick="saveBanner()">Save</button>
+        <button type="button" class="banner-modal-cancel" onclick="closeBannerModal()">Cancel</button>
       </div>
     </div>
   </div>
-</div>
 
-<div id="poleModal" class="pole-modal" aria-hidden="true">
-  <div class="pole-modal-card" role="dialog" aria-modal="true" aria-labelledby="poleModalTitle">
-    <div class="pole-modal-header">
-      <h3 id="poleModalTitle">Add Pole</h3>
-      <button type="button" class="pole-modal-close" id="poleModalClose" aria-label="Close pole form">✕</button>
+  <div id="poleSection" class="pole-section" aria-hidden="true">
+    <div class="pole-section-header">
+      <h4>Pole Details</h4>
+      <button type="button" id="poleSectionCloseBtn" class="pole-section-close"
+        aria-label="Close pole details">✕</button>
     </div>
-
-    <form id="poleForm" class="pole-modal-body">
-      <div class="pole-modal-field">
-        <label for="poleNumber">Pole Number</label>
-        <input type="text" id="poleNumber" placeholder="P-301" required />
-      </div>
-
-      <div class="pole-modal-field-row">
-        <div class="pole-modal-field">
-          <label for="poleType">Type</label>
-          <input type="text" id="poleType" placeholder="Electric" required />
+    
+    <div id="selectedPoleCard" class="selected-house-card pole-card">
+      <!-- <div class="selected-house-title">Pole Info</div> -->
+      <div class="selected-house-grid">
+        <div class="selected-house-row">
+          <span class="selected-house-label">Number</span>
+          <span class="selected-house-value" id="poleDataNumber">-</span>
         </div>
-        <div class="pole-modal-field">
-          <label for="poleVoltage">Voltage</label>
-          <input type="text" id="poleVoltage" placeholder="11kV" required />
+        <div class="selected-house-row">
+          <span class="selected-house-label">Type</span>
+          <span class="selected-house-value" id="poleDataType">-</span>
         </div>
-      </div>
-
-      <div class="pole-modal-field-row">
-        <div class="pole-modal-field">
-          <label for="poleHeight">Pole Height (m)</label>
-          <input type="number" id="poleHeight" min="0.1" step="0.1" value="9" required />
+        <div class="selected-house-row">
+          <span class="selected-house-label">Voltage</span>
+          <span class="selected-house-value" id="poleDataVoltage">-</span>
         </div>
-        <div class="pole-modal-field">
-          <label for="poleInstallationDate">Installation Date</label>
-          <input type="date" id="poleInstallationDate" required />
+        <div class="selected-house-row">
+          <span class="selected-house-label">Height</span>
+          <span class="selected-house-value" id="poleDataHeight">-</span>
         </div>
-      </div>
-
-      <div class="pole-modal-field-row">
-        <div class="pole-modal-field">
-          <label for="poleLongitude">Longitude</label>
-          <input type="text" id="poleLongitude" readonly />
+        <div class="selected-house-row">
+          <span class="selected-house-label">Installed</span>
+          <span class="selected-house-value" id="poleDataDate">-</span>
         </div>
-        <div class="pole-modal-field">
-          <label for="poleLatitude">Latitude</label>
-          <input type="text" id="poleLatitude" readonly />
+        <div class="selected-house-row">
+          <span class="selected-house-label">Heading</span>
+          <span class="selected-house-value" id="poleDataHeading">-</span>
+        </div>
+        <div class="selected-house-row">
+          <span class="selected-house-label">Coords</span>
+          <span class="selected-house-value" id="poleDataCoords">-</span>
         </div>
       </div>
-
-      <div class="pole-modal-field">
-        <label for="poleGroundHeight">Ground Height</label>
-        <input type="text" id="poleGroundHeight" readonly />
-      </div>
-
-      <div class="pole-modal-actions">
-        <button type="submit" class="pole-modal-save">Save Pole</button>
-        <button type="button" class="pole-modal-cancel" id="poleModalCancel">Cancel</button>
-      </div>
-    </form>
+    </div>
   </div>
-</div>
+
+  <div id="poleModal" class="pole-modal" aria-hidden="true">
+    <div class="pole-modal-card" role="dialog" aria-modal="true" aria-labelledby="poleModalTitle">
+      <div class="pole-modal-header">
+        <div class="pole-modal-header-copy">
+          <p class="pole-modal-kicker">Field Survey Sheet</p>
+          <h3 id="poleModalTitle">Add Pole</h3>
+        </div>
+        <button type="button" class="pole-modal-close" id="poleModalClose" aria-label="Close pole form">✕</button>
+      </div>
+
+      <div class="pole-modal-hero">
+        <div class="pole-modal-hero-mark" aria-hidden="true">●</div>
+        <div class="pole-modal-hero-copy">
+          <p class="pole-modal-lead">Capture a geotagged pole asset with structured field data.</p>
+          <p class="pole-modal-note">Choose the pole type, then save the exact location from the map.</p>
+        </div>
+      </div>
+
+      <form id="poleForm" class="pole-modal-body">
+        <div class="pole-modal-field">
+          <label for="poleNumber">Pole Number</label>
+          <input type="text" id="poleNumber" placeholder="P-301" required />
+        </div>
+
+        <div class="pole-modal-field-row">
+          <div class="pole-modal-field">
+            <label for="poleType">Type</label>
+            <select id="poleType" required>
+              <option value="electric">Electric Pole</option>
+              <option value="light">Light Pole</option>
+              <option value="communication">Communication Pole</option>
+              <option value="traffic_signal">Traffic Signal Pole</option>
+              <option value="cctv_surveillance">CCTV / Surveillance Pole</option>
+            </select>
+          </div>
+          <div class="pole-modal-field">
+            <label for="poleVoltage">Voltage</label>
+            <input type="text" id="poleVoltage" placeholder="11kV" required />
+          </div>
+        </div>
+
+        <div class="pole-modal-field-row">
+          <div class="pole-modal-field">
+            <label for="poleHeight">Pole Height (m)</label>
+            <input type="number" id="poleHeight" min="0.1" step="0.1" value="9" required />
+          </div>
+          <div class="pole-modal-field">
+            <label for="poleInstallationDate">Installation Date</label>
+            <input type="date" id="poleInstallationDate" required />
+          </div>
+        </div>
+
+        <div class="pole-modal-field-row">
+          <div class="pole-modal-field">
+            <label for="poleLongitude">Longitude</label>
+            <input type="text" id="poleLongitude" readonly />
+          </div>
+          <div class="pole-modal-field">
+            <label for="poleLatitude">Latitude</label>
+            <input type="text" id="poleLatitude" readonly />
+          </div>
+        </div>
+
+        <div class="pole-modal-field">
+          <label for="poleGroundHeight">Ground Height</label>
+          <input type="text" id="poleGroundHeight" readonly />
+        </div>
+
+        <div class="pole-modal-actions">
+          <button type="submit" class="pole-modal-save">Save Pole</button>
+          <button type="button" class="pole-modal-cancel" id="poleModalCancel">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
 
   <script>

@@ -20,13 +20,17 @@ function renderPoleSuggestions(resultsContainer, rawQuery) {
   suggestions.forEach((suggestion) => {
     const item = document.createElement("div");
     item.className = "search-result-item";
+    const typeLabel =
+      typeof window.getPoleTypeLabel === "function"
+        ? window.getPoleTypeLabel(suggestion.type)
+        : suggestion.type;
 
     item.innerHTML = `
 <div style="display: flex; align-items: center; justify-content: space-between;">
   <div>
     <strong>pole:${suggestion.poleNumber}</strong>
     <span class="search-result-badge pole">POLE</span><br>
-    <small>${suggestion.type} | ${suggestion.voltage}</small>
+    <small>${typeLabel} | ${suggestion.voltage}</small>
   </div>
 </div>
 `;

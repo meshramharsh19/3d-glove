@@ -15,23 +15,20 @@
     overflow: hidden;
     transition: all 0.3s ease;
     z-index: 9999;
-
     display: flex;
     flex-direction: column;
 }
 
-/* Header */
 .road-popup-header {
     flex: 0 0 48px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 0 14px;
-    background: linear-gradient(90deg, #4F46E5, #6366F1);
+    background: linear-gradient(90deg, #4f46e5, #6366f1);
     font-weight: 600;
 }
 
-/* Header buttons */
 .popup-actions button {
     background: transparent;
     border: none;
@@ -44,6 +41,7 @@
 .popup-actions button:hover {
     opacity: 0.75;
 }
+
 .popup-body {
     flex: 1;
     display: flex;
@@ -56,7 +54,6 @@
     border: none;
 }
 
-/* Fullscreen */
 .road-popup.fullscreen {
     top: 0;
     left: 0;
@@ -66,7 +63,6 @@
     border-radius: 0;
 }
 
-/* Utility */
 .hidden {
     display: none;
 }
@@ -74,8 +70,11 @@
 .pole-modal {
     position: fixed;
     inset: 0;
-    background: rgba(4, 10, 20, 0.58);
-    backdrop-filter: blur(4px);
+    background:
+        radial-gradient(circle at 20% 15%, rgba(91, 153, 255, 0.18), transparent 26%),
+        radial-gradient(circle at 80% 20%, rgba(255, 217, 130, 0.12), transparent 24%),
+        rgba(4, 10, 20, 0.68);
+    backdrop-filter: blur(10px);
     display: none;
     align-items: center;
     justify-content: center;
@@ -92,9 +91,14 @@
     max-height: 92vh;
     overflow: auto;
     border-radius: 16px;
-    border: 1px solid rgba(119, 173, 255, 0.3);
-    background: linear-gradient(180deg, rgba(11, 25, 47, 0.96), rgba(7, 16, 32, 0.96));
-    box-shadow: 0 24px 54px rgba(0, 0, 0, 0.45);
+    border: 1px solid rgba(126, 180, 255, 0.28);
+    background:
+        radial-gradient(circle at 18% 0%, rgba(103, 166, 255, 0.18), transparent 28%),
+        radial-gradient(circle at 90% 0%, rgba(255, 228, 158, 0.14), transparent 22%),
+        linear-gradient(180deg, rgba(12, 23, 44, 0.97), rgba(7, 14, 28, 0.98));
+    box-shadow:
+        0 24px 54px rgba(0, 0, 0, 0.48),
+        0 0 0 1px rgba(255, 255, 255, 0.04) inset;
 }
 
 .pole-modal-header {
@@ -103,12 +107,64 @@
     justify-content: space-between;
     padding: 14px 16px;
     border-bottom: 1px solid rgba(119, 173, 255, 0.22);
+    gap: 12px;
+}
+
+.pole-modal-header-copy {
+    display: grid;
+    gap: 3px;
+}
+
+.pole-modal-kicker {
+    margin: 0;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #7ea7dc;
 }
 
 .pole-modal-header h3 {
     margin: 0;
     font-size: 17px;
     color: #dcebff;
+}
+
+.pole-modal-hero {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px 2px;
+}
+
+.pole-modal-hero-mark {
+    width: 34px;
+    height: 34px;
+    border-radius: 999px;
+    display: grid;
+    place-items: center;
+    color: #06111f;
+    background: radial-gradient(circle at 30% 30%, #fff7cf, #f3c55c 74%);
+    box-shadow:
+        0 0 0 1px rgba(255, 229, 161, 0.34),
+        0 10px 22px rgba(218, 169, 46, 0.22);
+    flex: 0 0 auto;
+}
+
+.pole-modal-hero-copy {
+    display: grid;
+    gap: 3px;
+}
+
+.pole-modal-lead {
+    margin: 0;
+    font-size: 12px;
+    color: #d9e7fb;
+}
+
+.pole-modal-note {
+    margin: 0;
+    font-size: 11px;
+    color: #8ca8cf;
 }
 
 .pole-modal-close {
@@ -120,7 +176,7 @@
 }
 
 .pole-modal-body {
-    padding: 16px;
+    padding: 12px 16px 16px;
     display: grid;
     gap: 12px;
 }
@@ -140,20 +196,34 @@
     font-size: 12px;
     color: #9fc0e9;
     font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
 }
 
-.pole-modal-field input {
-    height: 38px;
-    border-radius: 10px;
+.pole-modal-field input,
+.pole-modal-field select {
+    height: 40px;
+    border-radius: 12px;
     border: 1px solid rgba(113, 165, 243, 0.26);
-    background: rgba(9, 23, 43, 0.88);
+    background: linear-gradient(180deg, rgba(16, 31, 55, 0.94), rgba(9, 20, 38, 0.94));
     color: #e9f4ff;
     padding: 0 10px;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.05),
+        0 8px 18px rgba(4, 10, 18, 0.18);
 }
 
 .pole-modal-field input[readonly] {
     color: #b2caea;
-    background: rgba(8, 19, 36, 0.95);
+    background: linear-gradient(180deg, rgba(12, 24, 45, 0.96), rgba(8, 19, 36, 0.96));
+    border-style: dashed;
+}
+
+.pole-modal-field input:focus,
+.pole-modal-field select:focus {
+    outline: none;
+    border-color: rgba(90, 157, 255, 0.8);
+    box-shadow: 0 0 0 2px rgba(52, 118, 226, 0.22);
 }
 
 .pole-modal-actions {
@@ -165,36 +235,194 @@
 
 .pole-modal-save,
 .pole-modal-cancel {
-    height: 38px;
-    border-radius: 10px;
+    height: 40px;
+    border-radius: 12px;
     padding: 0 14px;
     border: 1px solid transparent;
     cursor: pointer;
     font-weight: 700;
+    box-shadow: 0 10px 18px rgba(6, 15, 28, 0.2);
 }
 
 .pole-modal-save {
     color: #eaf4ff;
-    background: linear-gradient(180deg, #3a90ff, #2464cb);
-    border-color: rgba(119, 173, 255, 0.52);
+    background: linear-gradient(180deg, #4b9fff, #2768d4);
+    border-color: rgba(119, 173, 255, 0.58);
 }
 
 .pole-modal-cancel {
     color: #adc9eb;
-    background: rgba(11, 28, 54, 0.85);
+    background: linear-gradient(180deg, rgba(16, 34, 61, 0.92), rgba(10, 22, 42, 0.92));
     border-color: rgba(116, 166, 237, 0.35);
 }
 
+.pole-section {
+    position: fixed;
+    top: calc(var(--topbar-height) + 136px);
+    right: 64px;
+    display: none;
+    width: 324px;
+    max-height: min(440px, calc(100vh - 110px));
+    z-index: 1586;
+    border-radius: 13px;
+    border: 1px solid rgba(105, 158, 235, 0.3);
+    background:
+        radial-gradient(circle at 12% -18%, rgba(92, 154, 255, 0.14), transparent 32%),
+        radial-gradient(circle at 92% 0%, rgba(255, 224, 137, 0.08), transparent 26%),
+        linear-gradient(180deg, rgba(11, 22, 41, 0.98), rgba(7, 15, 30, 0.98));
+    box-shadow:
+        0 18px 36px rgba(3, 10, 20, 0.44),
+        0 0 0 1px rgba(255, 255, 255, 0.03) inset;
+    overflow: hidden;
+    backdrop-filter: blur(8px);
+}
+
+.pole-section.pole-visible {
+    display: block;
+}
+
+.pole-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 10px 13px;
+    border-bottom: 1px solid rgba(106, 154, 228, 0.24);
+    background: rgba(10, 22, 41, 0.68);
+}
+
+.pole-section-header h4 {
+    margin: 0;
+    font-family: "Sora", sans-serif;
+    font-size: 13px;
+    letter-spacing: 0.2px;
+    color: #d8e9ff;
+}
+
+.pole-section-close {
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    border: 1px solid rgba(104, 166, 255, 0.42);
+    background: linear-gradient(180deg, #3a8efc, #2a6fd8);
+    color: #eef6ff;
+    cursor: pointer;
+}
+
+.pole-section-chip {
+    margin-left: auto;
+    padding: 5px 9px;
+    border-radius: 999px;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #c8ddfb;
+    border: 1px solid rgba(111, 161, 239, 0.28);
+    background: rgba(17, 34, 61, 0.72);
+}
+
+.pole-section .pole-card {
+    margin: 8px;
+    max-height: 136px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(109, 160, 239, 0.38) transparent;
+}
+
+.pole-section .pole-card::-webkit-scrollbar {
+    width: 6px;
+}
+
+.pole-section .pole-card::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.pole-section .pole-card::-webkit-scrollbar-thumb {
+    background: rgba(109, 160, 239, 0.28);
+    border-radius: 999px;
+}
+
+.pole-section .pole-card::-webkit-scrollbar-button {
+    display: none;
+    width: 0;
+    height: 0;
+}
+
+.pole-section .pole-card::-webkit-scrollbar-thumb:hover {
+    background: rgba(125, 178, 255, 0.52);
+}
+
+.selected-house-card.pole-card {
+    position: relative;
+    padding: 8px;
+    border-radius: 10px;
+    border: 1px solid rgba(111, 159, 236, 0.26);
+    background: rgba(12, 25, 47, 0.82);
+    box-shadow: none;
+    max-height: 136px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(109, 160, 239, 0.38) transparent;
+}
+
+.selected-house-card.pole-card::before {
+    content: none;
+}
+
+.selected-house-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    color: #9fc3f2;
+    margin-bottom: 8px;
+}
+
+.selected-house-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.selected-house-row {
+    display: grid;
+    grid-template-columns: 64px 1fr;
+    align-items: start;
+    gap: 6px;
+}
+
+.selected-house-label {
+    font-size: 10px;
+    color: #7ca2d4;
+    white-space: nowrap;
+}
+
+.selected-house-value {
+    font-size: 11px;
+    color: #d7e8ff;
+    white-space: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: break-word;
+}
+
 body.light-theme .pole-modal {
-    background: rgba(24, 42, 78, 0.28);
+    background:
+        radial-gradient(circle at 20% 15%, rgba(110, 164, 232, 0.16), transparent 24%),
+        radial-gradient(circle at 80% 20%, rgba(255, 220, 145, 0.12), transparent 20%),
+        rgba(24, 42, 78, 0.28);
 }
 
 body.light-theme .pole-modal-card {
     border-color: rgba(100, 144, 213, 0.34);
     background:
-        radial-gradient(circle at 88% -30%, rgba(105, 160, 240, 0.24), transparent 52%),
+        radial-gradient(circle at 88% -30%, rgba(105, 160, 240, 0.22), transparent 52%),
         linear-gradient(180deg, rgba(248, 252, 255, 0.99), rgba(237, 245, 255, 0.98));
-    box-shadow: 0 20px 38px rgba(72, 108, 165, 0.28);
+    box-shadow:
+        0 20px 38px rgba(72, 108, 165, 0.28),
+        0 0 0 1px rgba(255, 255, 255, 0.4) inset;
 }
 
 body.light-theme .pole-modal-header {
@@ -203,6 +431,18 @@ body.light-theme .pole-modal-header {
 
 body.light-theme .pole-modal-header h3 {
     color: #2d4f82;
+}
+
+body.light-theme .pole-modal-kicker {
+    color: #6f8db7;
+}
+
+body.light-theme .pole-modal-lead {
+    color: #21406d;
+}
+
+body.light-theme .pole-modal-note {
+    color: #5e7fb0;
 }
 
 body.light-theme .pole-modal-close {
@@ -214,7 +454,8 @@ body.light-theme .pole-modal-field label {
     color: #567bae;
 }
 
-body.light-theme .pole-modal-field input {
+body.light-theme .pole-modal-field input,
+body.light-theme .pole-modal-field select {
     border-color: rgba(95, 136, 206, 0.35);
     background: rgba(255, 255, 255, 0.98);
     color: #234069;
@@ -223,6 +464,12 @@ body.light-theme .pole-modal-field input {
 body.light-theme .pole-modal-field input[readonly] {
     color: #4d6e9f;
     background: rgba(230, 241, 255, 0.82);
+}
+
+body.light-theme .pole-modal-field select:focus,
+body.light-theme .pole-modal-field input:focus {
+    border-color: rgba(86, 145, 224, 0.8);
+    box-shadow: 0 0 0 2px rgba(85, 146, 228, 0.18);
 }
 
 body.light-theme .pole-modal-save {
@@ -236,8 +483,67 @@ body.light-theme .pole-modal-cancel {
     color: #456c9f;
 }
 
+body.light-theme .pole-section {
+    border-color: rgba(103, 145, 213, 0.34);
+    background:
+        radial-gradient(circle at 12% -18%, rgba(108, 160, 235, 0.16), transparent 32%),
+        radial-gradient(circle at 92% 0%, rgba(255, 224, 137, 0.08), transparent 26%),
+        linear-gradient(180deg, rgba(247, 251, 255, 0.97), rgba(236, 244, 255, 0.97));
+    box-shadow:
+        0 14px 28px rgba(84, 118, 170, 0.24),
+        0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+}
+
+body.light-theme .pole-section-header {
+    border-bottom-color: rgba(92, 132, 202, 0.2);
+    background: rgba(232, 242, 255, 0.86);
+}
+
+body.light-theme .pole-section-chip {
+    color: #5172a6;
+    border-color: rgba(95, 136, 206, 0.28);
+    background: rgba(230, 240, 252, 0.92);
+}
+
+body.light-theme .selected-house-card.pole-card {
+    border-color: rgba(94, 138, 209, 0.28);
+    background: rgba(230, 241, 255, 0.78);
+    box-shadow: none;
+}
+
+body.light-theme .pole-section .pole-card {
+    scrollbar-color: rgba(108, 154, 224, 0.58) transparent;
+}
+
+body.light-theme .pole-section .pole-card::-webkit-scrollbar-track {
+    background: rgba(219, 234, 255, 0.72);
+}
+
+body.light-theme .pole-section .pole-card::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, rgba(124, 172, 238, 0.9), rgba(86, 138, 216, 0.92));
+    border-color: rgba(223, 236, 255, 0.95);
+}
+
+body.light-theme .selected-house-row {
+    border-color: rgba(95, 136, 206, 0.16);
+    background: rgba(255, 255, 255, 0.54);
+}
+
+body.light-theme .selected-house-label {
+    color: #5575a7;
+}
+
+body.light-theme .selected-house-value {
+    color: #21406d;
+}
+
 @media (max-width: 640px) {
     .pole-modal-field-row {
         grid-template-columns: 1fr;
+    }
+
+    .pole-section {
+        width: min(324px, calc(100vw - 24px));
+        right: 12px;
     }
 }

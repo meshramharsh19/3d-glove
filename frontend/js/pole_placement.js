@@ -29,6 +29,34 @@
   const CROSS_ARM_RADIUS = 0.12;
   const INSULATOR_RADIUS = 0.08;
   const EARTH_RADIUS_METERS = 6378137;
+  const DEFAULT_POLE_TYPE = "electric";
+  const POLE_TYPE_CONFIG = {
+    electric: {
+      label: "Electric Pole",
+      color: "#5a6b5a",
+      accent: "#2a3f2f",
+    },
+    light: {
+      label: "Light Pole",
+      color: "#1f1f1f",
+      accent: "#0f0f0f",
+    },
+    communication: {
+      label: "Communication Pole",
+      color: "#566070",
+      accent: "#303848",
+    },
+    traffic_signal: {
+      label: "Traffic Signal Pole",
+      color: "#6c5b57",
+      accent: "#46302c",
+    },
+    cctv_surveillance: {
+      label: "CCTV / Surveillance Pole",
+      color: "#4f6470",
+      accent: "#26343d",
+    },
+  };
   const poleEntities = new Map();
   const poleComponentEntities = new Map();
   const poleSearchIndex = new Map();
@@ -57,6 +85,49 @@
     return ((value % 360) + 360) % 360;
   }
 
+  function normalizePoleType(value) {
+    const normalized = String(value || "")
+      .trim()
+      .toLowerCase()
+      .replace(/[\s\/-]+/g, "_");
+
+    if (normalized === "electric_pole" || normalized === "concrete") {
+      return "electric";
+    }
+
+    if (normalized === "light_pole") {
+      return "light";
+    }
+
+    if (normalized === "communication_pole") {
+      return "communication";
+    }
+
+    if (normalized === "traffic_signal_pole") {
+      return "traffic_signal";
+    }
+
+    if (
+      normalized === "cctv_surveillance_pole" ||
+      normalized === "cctv" ||
+      normalized === "surveillance_pole"
+    ) {
+      return "cctv_surveillance";
+    }
+
+    return Object.prototype.hasOwnProperty.call(POLE_TYPE_CONFIG, normalized)
+      ? normalized
+      : DEFAULT_POLE_TYPE;
+  }
+
+  function getPoleTypeConfig(value) {
+    return POLE_TYPE_CONFIG[normalizePoleType(value)] || POLE_TYPE_CONFIG[DEFAULT_POLE_TYPE];
+  }
+
+  function getPoleTypeLabel(value) {
+    return getPoleTypeConfig(value).label;
+  }
+
   function getFallbackWireHeading(position) {
     const cartographic = Cesium.Cartographic.fromCartesian(position);
     const lonDeg = Cesium.Math.toDegrees(cartographic.longitude);
@@ -66,8 +137,13 @@
     return (seed % 6) * 30;
   }
 
-  function createRealisticPole(cesiumViewer, position, poleHeight, poleColor, wireHeading) {
+  function createRealisticPole(cesiumViewer, position, poleHeight, poleType, wireHeading) {
     const components = [];
+    const typeKey = normalizePoleType(poleType);
+    const typeConfig = getPoleTypeConfig(poleType);
+    const poleColor = typeConfig.color;
+    const accentColor = typeConfig.accent;
+    const shaftRadius = typeKey === "light" ? POLE_RADIUS * 0.3 : POLE_RADIUS;
 
     const cartographic = Cesium.Cartographic.fromCartesian(position);
     const groundHeight = cartographic.height || 0;
@@ -100,15 +176,251 @@
       position: polePosition,
       cylinder: {
         length: poleHeight,
-        topRadius: POLE_RADIUS,
-        bottomRadius: POLE_RADIUS * 1.1,
+        topRadius: shaftRadius,
+        bottomRadius: shaftRadius * 1.04,
         material: Cesium.Color.fromCssColorString(poleColor),
         outline: true,
-        outlineColor: Cesium.Color.fromCssColorString("#2a3f2f"),
+        outlineColor: Cesium.Color.fromCssColorString(accentColor),
       },
     });
 
     components.push(mainPole);
+
+    const addComponent = (definition) => {
+      const entity = cesiumViewer.entities.add(definition);
+      components.push(entity);
+      return entity;
+    };
+
+    if (typeKey === "light") {
+      const lanternBodyHeight = poleHeight * 0.13;
+      const lanternCapHeight = poleHeight * 0.07;
+
+      addComponent({
+        position: offsetPosition(0, 0, poleHeight * 0.05),
+        cylinder: {
+          length: poleHeight * 0.1,
+          topRadius: shaftRadius * 1.55,
+          bottomRadius: shaftRadius * 1.7,
+          material: Cesium.Color.fromCssColorString("#121212"),
+          outline: true,
+          outlineColor: Cesium.Color.fromCssColorString("#070707"),
+        },
+      });
+
+      addComponent({
+        position: offsetPosition(0, 0, poleHeight * 0.27),
+        cylinder: {
+          length: poleHeight * 0.44,
+          topRadius: shaftRadius * 0.78,
+          bottomRadius: shaftRadius * 0.9,
+          material: Cesium.Color.fromCssColorString("#1a1a1a"),
+          outline: true,
+          outlineColor: Cesium.Color.fromCssColorString(accentColor),
+        },
+      });
+
+      addComponent({
+        position: offsetPosition(0, 0, poleHeight * 0.71),
+        cylinder: {
+          length: poleHeight * 0.06,
+          topRadius: shaftRadius * 0.95,
+          bottomRadius: shaftRadius * 1.08,
+          material: Cesium.Color.fromCssColorString("#101010"),
+          outline: true,
+          outlineColor: Cesium.Color.fromCssColorString(accentColor),
+        },
+      });
+
+      addComponent({
+        position: offsetPosition(0, 0, poleHeight * 0.82),
+        box: {
+          dimensions: new Cesium.Cartesian3(0.42, 0.42, lanternBodyHeight),
+          material: Cesium.Color.fromCssColorString("#1a1a1a").withAlpha(0.9),
+          outline: true,
+          outlineColor: Cesium.Color.fromCssColorString("#090909"),
+        },
+      });
+
+      addComponent({
+        position: offsetPosition(0, 0, poleHeight * 0.89),
+        box: {
+          dimensions: new Cesium.Cartesian3(0.52, 0.52, lanternCapHeight),
+          material: Cesium.Color.fromCssColorString("#111111"),
+          outline: true,
+          outlineColor: Cesium.Color.fromCssColorString("#000000"),
+        },
+      });
+
+      addComponent({
+        position: offsetPosition(0, 0, poleHeight * 0.74),
+        box: {
+          dimensions: new Cesium.Cartesian3(0.36, 0.36, 0.06),
+          material: Cesium.Color.fromCssColorString("#121212"),
+          outline: true,
+          outlineColor: Cesium.Color.fromCssColorString("#000000"),
+        },
+      });
+
+      [0, 90, 180, 270].forEach((angleDeg) => {
+        const angleRad = Cesium.Math.toRadians(angleDeg);
+        const eastOffset = Math.cos(angleRad) * 0.19;
+        const northOffset = Math.sin(angleRad) * 0.19;
+
+        addComponent({
+          position: offsetPosition(eastOffset, northOffset, poleHeight * 0.8),
+          box: {
+            dimensions: new Cesium.Cartesian3(0.04, 0.04, lanternBodyHeight * 1.03),
+            material: Cesium.Color.fromCssColorString("#0f0f0f"),
+            outline: false,
+          },
+        });
+      });
+
+      addComponent({
+        position: offsetPosition(0, 0, poleHeight * 0.84),
+        sphere: {
+          radius: 0.13,
+          material: Cesium.Color.fromCssColorString("#fff3c4").withAlpha(0.92),
+          outline: false,
+        },
+      });
+
+      addComponent({
+        position: offsetPosition(0, 0, poleHeight * 0.84),
+        sphere: {
+          radius: 0.22,
+          material: Cesium.Color.fromCssColorString("#ffd66f").withAlpha(0.16),
+          outline: false,
+        },
+      });
+
+      addComponent({
+        position: offsetPosition(0, 0, poleHeight * 0.98),
+        sphere: {
+          radius: 0.035,
+          material: Cesium.Color.fromCssColorString("#050505"),
+          outline: false,
+        },
+      });
+
+      addComponent({
+        position: offsetPosition(0, 0, poleHeight * 0.865),
+        box: {
+          dimensions: new Cesium.Cartesian3(0.28, 0.28, 0.28),
+          material: Cesium.Color.fromCssColorString("#fff1aa").withAlpha(0.2),
+          outline: false,
+        },
+      });
+
+      return components;
+    }
+
+    if (typeKey === "communication") {
+      addComponent({
+        position: offsetPosition(0, 0, poleHeight * 0.9),
+        box: {
+          dimensions: new Cesium.Cartesian3(0.08, 0.08, poleHeight * 0.28),
+          material: Cesium.Color.fromCssColorString(accentColor),
+          outline: true,
+          outlineColor: Cesium.Color.fromCssColorString(accentColor),
+        },
+      });
+
+      addComponent({
+        position: offsetPosition(0.18, 0, poleHeight * 0.79),
+        box: {
+          dimensions: new Cesium.Cartesian3(0.38, 0.24, 0.24),
+          material: Cesium.Color.fromCssColorString("#cfd6df"),
+          outline: true,
+          outlineColor: Cesium.Color.fromCssColorString(accentColor),
+        },
+      });
+
+      addComponent({
+        position: offsetPosition(0.08, 0.02, poleHeight * 1.03),
+        polyline: {
+          positions: [
+            offsetPosition(0.08, 0.02, poleHeight * 0.98),
+            offsetPosition(0.08, 0.02, poleHeight * 1.18),
+          ],
+          width: 2,
+          material: Cesium.Color.fromCssColorString("#dfe7f1"),
+        },
+      });
+
+      return components;
+    }
+
+    if (typeKey === "traffic_signal") {
+      addComponent({
+        position: offsetPosition(0.95, 0, poleHeight * 0.78),
+        box: {
+          dimensions: new Cesium.Cartesian3(1.8, 0.1, 0.1),
+          material: Cesium.Color.fromCssColorString(accentColor),
+          outline: true,
+          outlineColor: Cesium.Color.fromCssColorString(accentColor),
+        },
+      });
+
+      const signalOffsets = [-0.45, 0.05, 0.55];
+      const signalColors = ["#e53e3e", "#f4c542", "#3ac16d"];
+      signalOffsets.forEach((eastOffset, index) => {
+        addComponent({
+          position: offsetPosition(eastOffset, 0, poleHeight * 0.72),
+          box: {
+            dimensions: new Cesium.Cartesian3(0.18, 0.18, 0.38),
+            material: Cesium.Color.fromCssColorString("#1b1f26"),
+            outline: true,
+            outlineColor: Cesium.Color.fromCssColorString(accentColor),
+          },
+        });
+
+        addComponent({
+          position: offsetPosition(eastOffset, 0, poleHeight * 0.64),
+          sphere: {
+            radius: 0.05,
+            material: Cesium.Color.fromCssColorString(signalColors[index]),
+            outline: false,
+          },
+        });
+      });
+
+      return components;
+    }
+
+    if (typeKey === "cctv_surveillance") {
+      addComponent({
+        position: offsetPosition(0.78, 0, poleHeight * 0.82),
+        box: {
+          dimensions: new Cesium.Cartesian3(1.45, 0.08, 0.08),
+          material: Cesium.Color.fromCssColorString(accentColor),
+          outline: true,
+          outlineColor: Cesium.Color.fromCssColorString(accentColor),
+        },
+      });
+
+      addComponent({
+        position: offsetPosition(1.45, 0, poleHeight * 0.75),
+        box: {
+          dimensions: new Cesium.Cartesian3(0.28, 0.18, 0.18),
+          material: Cesium.Color.fromCssColorString("#d8dee6"),
+          outline: true,
+          outlineColor: Cesium.Color.fromCssColorString(accentColor),
+        },
+      });
+
+      addComponent({
+        position: offsetPosition(1.58, 0, poleHeight * 0.75),
+        sphere: {
+          radius: 0.06,
+          material: Cesium.Color.fromCssColorString("#1a2530"),
+          outline: false,
+        },
+      });
+
+      return components;
+    }
 
     const transformer = cesiumViewer.entities.add({
       position: offsetPosition(-0.55, 0, poleHeight * 0.52),
@@ -116,7 +428,7 @@
         dimensions: new Cesium.Cartesian3(0.55, 0.35, 0.65),
         material: Cesium.Color.fromCssColorString("#8a857b"),
         outline: true,
-        outlineColor: Cesium.Color.fromCssColorString("#4a4a4a"),
+        outlineColor: Cesium.Color.fromCssColorString(accentColor),
       },
     });
     components.push(transformer);
@@ -128,7 +440,7 @@
           offsetPosition(-0.55, 0, poleHeight * 0.36),
         ],
         width: 2,
-        material: Cesium.Color.fromCssColorString("#5f564d"),
+        material: Cesium.Color.fromCssColorString(accentColor),
       },
     });
     components.push(transformerBrace);
@@ -140,9 +452,9 @@
       position: offsetPosition(0, 0, topArmHeight),
       box: {
         dimensions: new Cesium.Cartesian3(CROSS_ARM_LENGTH, CROSS_ARM_RADIUS, CROSS_ARM_RADIUS),
-        material: Cesium.Color.fromCssColorString("#5a6b5a"),
+        material: Cesium.Color.fromCssColorString(poleColor),
         outline: true,
-        outlineColor: Cesium.Color.fromCssColorString("#2a3f2f"),
+        outlineColor: Cesium.Color.fromCssColorString(accentColor),
       },
     });
     components.push(topCrossArm);
@@ -151,9 +463,9 @@
       position: offsetPosition(0, 0, topArmHeight - 0.08),
       box: {
         dimensions: new Cesium.Cartesian3(CROSS_ARM_RADIUS, CROSS_ARM_LENGTH * 0.7, CROSS_ARM_RADIUS),
-        material: Cesium.Color.fromCssColorString("#55695c"),
+        material: Cesium.Color.fromCssColorString(poleColor),
         outline: true,
-        outlineColor: Cesium.Color.fromCssColorString("#2a3f2f"),
+        outlineColor: Cesium.Color.fromCssColorString(accentColor),
       },
     });
     components.push(backCrossArm);
@@ -162,9 +474,9 @@
       position: offsetPosition(0, 0, supportArmHeight),
       box: {
         dimensions: new Cesium.Cartesian3(CROSS_ARM_LENGTH * 0.65, CROSS_ARM_RADIUS * 0.9, CROSS_ARM_RADIUS * 0.9),
-        material: Cesium.Color.fromCssColorString("#4f6154"),
+        material: Cesium.Color.fromCssColorString(poleColor),
         outline: true,
-        outlineColor: Cesium.Color.fromCssColorString("#2a3f2f"),
+        outlineColor: Cesium.Color.fromCssColorString(accentColor),
       },
     });
     components.push(supportArm);
@@ -224,7 +536,7 @@
         ? poleHeight
         : DEFAULT_POLE_HEIGHT;
 
-    const poleColor = poleData?.type === "concrete" ? "#7a8c7a" : "#5a6b5a";
+    const poleType = normalizePoleType(poleData?.type);
     const resolvedHeading = Number.isFinite(poleData?.wireHeading)
       ? poleData.wireHeading
       : getFallbackWireHeading(position);
@@ -233,7 +545,7 @@
       cesiumViewer,
       position,
       resolvedPoleHeight,
-      poleColor,
+      poleType,
       resolvedHeading
     );
 
@@ -270,6 +582,7 @@
       pole?._id,
       pole?.poleNumber,
       pole?.type,
+      getPoleTypeLabel(pole?.type),
       pole?.voltage,
       pole?.installationDate,
       pole?.position?.longitude,
@@ -503,7 +816,7 @@
     const poleCoordsEl = document.getElementById("poleDataCoords");
 
     if (poleNumberEl) poleNumberEl.textContent = poleData.poleNumber || poleData._id || "-";
-    if (poleTypeEl) poleTypeEl.textContent = poleData.type || "-";
+    if (poleTypeEl) poleTypeEl.textContent = getPoleTypeLabel(poleData.type);
     if (poleVoltageEl) poleVoltageEl.textContent = poleData.voltage || "-";
     if (poleHeightEl) poleHeightEl.textContent =
       Number.isFinite(poleData.poleHeight) ? `${poleData.poleHeight} m` : "-";
@@ -630,6 +943,10 @@
     setInputValue("poleLongitude", longitude.toFixed(6));
     setInputValue("poleLatitude", latitude.toFixed(6));
     setInputValue("poleGroundHeight", height.toFixed(2));
+    const poleTypeSelect = document.getElementById("poleType");
+    if (poleTypeSelect) {
+      poleTypeSelect.value = DEFAULT_POLE_TYPE;
+    }
     setInputValue("poleHeight", String(DEFAULT_POLE_HEIGHT));
     setInputValue("poleInstallationDate", getTodayDateString());
 
@@ -674,7 +991,7 @@
     }
 
     const poleNumber = document.getElementById("poleNumber")?.value.trim();
-    const type = document.getElementById("poleType")?.value.trim();
+    const type = normalizePoleType(document.getElementById("poleType")?.value.trim());
     const voltage = document.getElementById("poleVoltage")?.value.trim();
     const poleHeight = Number(document.getElementById("poleHeight")?.value);
     const installationDate = document.getElementById("poleInstallationDate")?.value;
@@ -878,4 +1195,5 @@
   window.getPoleDataByNumber = getPoleDataByNumber;
   window.showPoleDetailsPanel = showPoleDetailsPanel;
   window.closePoleDetailsPanel = closePoleDetailsPanel;
+  window.getPoleTypeLabel = getPoleTypeLabel;
 })();

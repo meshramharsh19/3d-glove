@@ -3,8 +3,53 @@ const Pole = require("../models/Pole");
 
 const router = express.Router();
 
+const POLE_TYPE_LABELS = {
+  electric: "Electric Pole",
+  light: "Light Pole",
+  communication: "Communication Pole",
+  traffic_signal: "Traffic Signal Pole",
+  cctv_surveillance: "CCTV / Surveillance Pole",
+};
+
 function isFiniteNumber(value) {
   return typeof value === "number" && Number.isFinite(value);
+}
+
+function normalizePoleType(value) {
+  const normalized = String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[\s\/-]+/g, "_");
+
+  if (normalized === "electric_pole" || normalized === "concrete") {
+    return "electric";
+  }
+
+  if (normalized === "light_pole") {
+    return "light";
+  }
+
+  if (normalized === "communication_pole") {
+    return "communication";
+  }
+
+  if (normalized === "traffic_signal_pole") {
+    return "traffic_signal";
+  }
+
+  if (
+    normalized === "cctv_surveillance_pole" ||
+    normalized === "cctv" ||
+    normalized === "surveillance_pole"
+  ) {
+    return "cctv_surveillance";
+  }
+
+  if (Object.prototype.hasOwnProperty.call(POLE_TYPE_LABELS, normalized)) {
+    return normalized;
+  }
+
+  return "";
 }
 
 router.post("/add-pole", async (req, res) => {
@@ -21,6 +66,15 @@ router.post("/add-pole", async (req, res) => {
       y,
       z,
     } = req.body;
+
+    const normalizedType = normalizePoleType(type);
+
+    if (!normalizedType) {
+      return res.status(400).json({
+        success: false,
+        message: `type must be one of: ${Object.values(POLE_TYPE_LABELS).join(", ")}`,
+      });
+    }
 
     const hasGeodeticPosition =
       position &&
@@ -64,7 +118,7 @@ router.post("/add-pole", async (req, res) => {
 
     const payload = {
       poleNumber,
-      type,
+      type: normalizedType,
       voltage,
       poleHeight,
       wireHeading,
