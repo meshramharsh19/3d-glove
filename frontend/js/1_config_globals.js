@@ -36,6 +36,16 @@ const viewer = new Cesium.Viewer("cesiumContainer", {
 
 // CRITICAL: Enable depth testing against terrain to prevent z-fighting
 viewer.scene.globe.depthTestAgainstTerrain = true;
+viewer.scene.globe.enableLighting = false;
+viewer.scene.globe.showGroundAtmosphere = true;
+viewer.scene.skyAtmosphere.show = true;
+viewer.scene.fog.enabled = false;
+viewer.scene.sun.show = true;
+viewer.scene.moon.show = true;
+viewer.scene.highDynamicRange = true;
+viewer.scene.postProcessStages.fxaa.enabled = true;
+viewer.scene.globe.maximumScreenSpaceError = 1.5;
+viewer.resolutionScale = Math.min(window.devicePixelRatio || 1, 1.5);
 
 // Disable default double-click behavior
 viewer.cesiumWidget.screenSpaceEventHandler.removeInputAction(

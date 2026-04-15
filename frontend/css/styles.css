@@ -1,0 +1,189 @@
+/* Sewage pipeline panel styles */
+.sewage-panel {
+  position: fixed;
+  left: 18px;
+  bottom: 20px;
+  width: min(360px, calc(100vw - 36px));
+  z-index: 1700;
+  border: 1px solid rgba(79, 163, 205, 0.42);
+  border-radius: 14px;
+  background:
+    radial-gradient(circle at 90% -20%, rgba(16, 154, 197, 0.18), transparent 50%),
+    linear-gradient(180deg, rgba(8, 27, 43, 0.95), rgba(8, 18, 32, 0.95));
+  box-shadow: 0 16px 30px rgba(4, 14, 25, 0.45);
+  backdrop-filter: blur(8px);
+  overflow: hidden;
+}
+
+.sewage-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(96, 170, 214, 0.25);
+  background: rgba(13, 38, 58, 0.65);
+}
+
+.sewage-panel-header h4 {
+  margin: 0;
+  color: #cfefff;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.pipeline-point-count {
+  color: #85cce6;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.sewage-panel-close {
+  margin-left: auto;
+  border: 1px solid rgba(104, 170, 209, 0.32);
+  border-radius: 7px;
+  background: rgba(8, 34, 52, 0.7);
+  color: #d6efff;
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1;
+  padding: 4px 7px;
+}
+
+.sewage-panel-body {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sewage-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sewage-field label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #9fcbe0;
+}
+
+.sewage-field input,
+.sewage-field select {
+  width: 100%;
+  border-radius: 9px;
+  border: 1px solid rgba(93, 162, 200, 0.32);
+  background: rgba(5, 23, 39, 0.88);
+  color: #d6efff;
+  padding: 8px 10px;
+  font-size: 12px;
+}
+
+.sewage-field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.sewage-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.sewage-btn {
+  border: 1px solid rgba(101, 173, 210, 0.36);
+  border-radius: 9px;
+  color: #daf4ff;
+  background: linear-gradient(180deg, #147bb0, #0e5f89);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 8px 10px;
+}
+
+.sewage-btn.alt {
+  background: rgba(10, 38, 58, 0.75);
+}
+
+.sewage-btn.capture-active {
+  border-color: rgba(80, 224, 137, 0.62);
+  background: linear-gradient(180deg, #1fbe72, #159b5b);
+}
+
+.sewage-status {
+  border: 1px dashed rgba(106, 173, 205, 0.35);
+  border-radius: 9px;
+  padding: 8px 10px;
+  color: #9cd4e9;
+  font-size: 11px;
+}
+
+.sewage-status.error {
+  border-color: rgba(242, 106, 122, 0.55);
+  color: #ff9fad;
+}
+
+body.light-theme .sewage-panel {
+  border-color: rgba(95, 150, 194, 0.36);
+  background:
+    radial-gradient(circle at 90% -20%, rgba(79, 190, 236, 0.22), transparent 50%),
+    linear-gradient(180deg, rgba(248, 253, 255, 0.98), rgba(233, 244, 251, 0.96));
+  box-shadow: 0 14px 24px rgba(89, 126, 163, 0.26);
+}
+
+body.light-theme .sewage-panel-header {
+  background: rgba(221, 240, 252, 0.9);
+  border-bottom-color: rgba(115, 166, 198, 0.32);
+}
+
+body.light-theme .sewage-panel-header h4 {
+  color: #1f5676;
+}
+
+body.light-theme .pipeline-point-count {
+  color: #3e7da0;
+}
+
+body.light-theme .sewage-panel-close {
+  border-color: rgba(107, 165, 198, 0.35);
+  background: rgba(232, 246, 255, 0.95);
+  color: #2f6282;
+}
+
+body.light-theme .sewage-field label {
+  color: #457495;
+}
+
+body.light-theme .sewage-field input,
+body.light-theme .sewage-field select {
+  color: #1f4866;
+  background: rgba(255, 255, 255, 0.98);
+  border-color: rgba(112, 166, 199, 0.45);
+}
+
+body.light-theme .sewage-btn {
+  border-color: rgba(89, 148, 186, 0.44);
+  color: #eff9ff;
+  background: linear-gradient(180deg, #2288bf, #1a6f9f);
+}
+
+body.light-theme .sewage-btn.alt {
+  background: rgba(215, 235, 248, 0.94);
+  color: #2f6282;
+}
+
+body.light-theme .sewage-status {
+  border-color: rgba(108, 164, 197, 0.4);
+  color: #3f7496;
+}
+
+@media (max-width: 960px) {
+  .sewage-panel {
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    width: auto;
+  }
+}

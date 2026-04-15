@@ -1,0 +1,24 @@
+{
+  "pipelineId": "SG-PIPE-001",
+  "diameter": 600,
+  "material": "RCC",
+  "status": "Active",
+  "installationDate": "2026-03-10",
+  "points": [
+    {
+      "latitude": 20.593684,
+      "longitude": 78.96288,
+      "height": 2.4
+    },
+    {
+      "latitude": 20.59391,
+      "longitude": 78.96321,
+      "height": 2.35
+    },
+    {
+      "latitude": 20.59412,
+      "longitude": 78.96362,
+      "height": 2.3
+    }
+  ]
+}

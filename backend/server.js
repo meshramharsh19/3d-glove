@@ -81,6 +81,7 @@ const io = new Server(server, {
 require("./socket")(io);
 
 const poleRoutes = require("./routes/poleRoutes");
+const sewageRoutes = require("./routes/sewageRoutes");
 
 // =========================
 // Save Banner API
@@ -155,6 +156,7 @@ app.get("/api/banners/:houseId", async (req, res) => {
 // =========================
 
 app.use("/api/poles", poleRoutes);
+app.use("/api/sewage", sewageRoutes);
 
 // =========================
 // Serve Static Files

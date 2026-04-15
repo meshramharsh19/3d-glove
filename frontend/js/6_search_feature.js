@@ -7,6 +7,39 @@
 let dbSearchPolygons = []; // track DB-drawn polygons for search
 const ptaxDatabase = window.ptaxDatabase || {};
 
+function getSearchMode() {
+  return document.getElementById("searchType")?.value || "all";
+}
+
+function setSearchPlaceholder(mode) {
+  const searchInput = document.getElementById("searchInput");
+  if (!searchInput) {
+    return;
+  }
+
+  const placeholders = {
+    all: "Search property, pole or pipeline",
+    property: "Search property, owner or phone",
+    pole: "Search pole number",
+    pipeline: "Search pipeline ID",
+  };
+
+  searchInput.placeholder = placeholders[mode] || placeholders.all;
+}
+
+function setSearchHint(message) {
+  const resultsContainer = document.getElementById("search-results");
+  if (!resultsContainer) {
+    return;
+  }
+
+  if (!message) {
+    return;
+  }
+
+  resultsContainer.innerHTML = `<div class="search-no-results">${message}</div>`;
+}
+
 function renderPoleSuggestions(resultsContainer, rawQuery) {
   if (typeof window.getPoleSuggestions !== "function") {
     return 0;
@@ -67,6 +100,67 @@ function renderPoleSuggestions(resultsContainer, rawQuery) {
   });
 
   return suggestions.length;
+}
+
+function renderPipelineSuggestions(resultsContainer, rawQuery) {
+  if (typeof window.getSewagePipelineSuggestions !== "function") {
+    return 0;
+  }
+
+  const suggestions = window.getSewagePipelineSuggestions(rawQuery, 8);
+  if (!Array.isArray(suggestions) || suggestions.length === 0) {
+    return 0;
+  }
+
+  suggestions.forEach((suggestion) => {
+    const item = document.createElement("div");
+    item.className = "search-result-item";
+
+    item.innerHTML = `
+<div style="display: flex; align-items: center; justify-content: space-between;">
+  <div>
+    <strong>pipeline:${suggestion.pipelineId}</strong>
+    <span class="search-result-badge pipeline">PIPELINE</span><br>
+    <small>${suggestion.material} | ${suggestion.diameter} mm | ${suggestion.status}</small>
+  </div>
+</div>
+`;
+
+    item.onclick = async () => {
+      const searchInput = document.getElementById("searchInput");
+      const results = document.getElementById("search-results");
+
+      if (searchInput) {
+        searchInput.value = `pipeline:${suggestion.pipelineId}`;
+      }
+
+      if (typeof window.ensureSewagePipelineVisible === "function") {
+        await window.ensureSewagePipelineVisible();
+      }
+
+      if (typeof window.updateSewagePipelineVisibility === "function") {
+        window.updateSewagePipelineVisibility(`pipeline:${suggestion.pipelineId}`);
+      }
+
+      if (typeof window.focusSewagePipelineById === "function") {
+        window.focusSewagePipelineById(suggestion.pipelineId);
+      }
+
+      if (results) {
+        results.innerHTML = "";
+      }
+    };
+
+    resultsContainer.appendChild(item);
+  });
+
+  return suggestions.length;
+}
+
+function isPipelineQuery(query) {
+  const normalized = String(query || "").trim().toLowerCase();
+  return /^(?:pipeline|sewage|pipe)\s*[:\-\s]?/i.test(normalized) ||
+    /^(sg[-\s]?)?pipe[-\s]?\d+/i.test(normalized);
 }
 
 // ======================================================
@@ -140,12 +234,41 @@ function searchProperties() {
     .getElementById("searchInput")
     .value.toLowerCase()
     .trim();
+  const searchMode = getSearchMode();
   const resultsContainer = document.getElementById("search-results");
   resultsContainer.innerHTML = ""; // Clear previous results
 
-  const poleSuggestionCount = renderPoleSuggestions(resultsContainer, query);
+  setSearchPlaceholder(searchMode);
 
-  if (query.startsWith("pole:")) {
+  const allowPipeline = searchMode === "all" || searchMode === "pipeline";
+  const allowPole = searchMode === "all" || searchMode === "pole";
+  const allowProperty = searchMode === "all" || searchMode === "property";
+
+  const pipelineSuggestionCount = allowPipeline
+    ? renderPipelineSuggestions(resultsContainer, query)
+    : 0;
+  const poleSuggestionCount = allowPole
+    ? renderPoleSuggestions(resultsContainer, query)
+    : 0;
+
+  if (!query) {
+    setSearchHint(
+      searchMode === "all"
+        ? "Choose a type and start typing to search."
+        : `Type to search ${searchMode}.`
+    );
+    return;
+  }
+
+  if (searchMode === "pipeline" || isPipelineQuery(query)) {
+    if (pipelineSuggestionCount === 0) {
+      resultsContainer.innerHTML +=
+        '<div class="search-no-results">No sewage pipelines found.</div>';
+    }
+    return;
+  }
+
+  if (searchMode === "pole" || query.startsWith("pole:")) {
     if (poleSuggestionCount === 0) {
       resultsContainer.innerHTML =
         '<div class="search-no-results">No poles found.</div>';
@@ -153,8 +276,12 @@ function searchProperties() {
     return;
   }
 
-  if (!query) {
-    return; // Don't search for empty strings
+  if (!allowProperty) {
+    if (query && pipelineSuggestionCount === 0 && poleSuggestionCount === 0) {
+      resultsContainer.innerHTML =
+        '<div class="search-no-results">No results found.</div>';
+    }
+    return;
   }
 
  if (!window.ptaxDatabase || Object.keys(window.ptaxDatabase).length === 0) {
@@ -653,6 +780,14 @@ function flyToHouse(houseId, propertyData) {
   } catch (e) {}
   resultsContainer.innerHTML = "";
 }
+
+const searchTypeSelect = document.getElementById("searchType");
+searchTypeSelect?.addEventListener("change", () => {
+  setSearchPlaceholder(searchTypeSelect.value);
+  searchProperties();
+});
+
+setSearchPlaceholder(getSearchMode());
 
 // ============================
 // RESET VIEW: show all houses

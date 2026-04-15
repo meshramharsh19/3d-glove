@@ -281,7 +281,7 @@ function addModelToCesium(modelUrl, fileName) {
       allowPicking: true,
       show: true,
       heightReference: heightRef,
-      shadows: Cesium.ShadowMode.ENABLED,
+      shadows: Cesium.ShadowMode.DISABLED,
       imageBasedLightingFactor: new Cesium.Cartesian2(1.0, 1.0),
       colorBlendMode: Cesium.ColorBlendMode.HIGHLIGHT,
       colorBlendAmount: 0.5,
@@ -477,7 +477,7 @@ function loadDefaultModel() {
       uri: defaultModelUrl,
       scale: defaultScale,
       heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-      shadows: Cesium.ShadowMode.ENABLED,
+      shadows: Cesium.ShadowMode.DISABLED,
       color: Cesium.Color.WHITE.withAlpha(1.0),
     },
   });

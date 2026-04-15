@@ -23,7 +23,6 @@
   }
 
   const POLE_API_BASE = resolvePoleApiBase();
-  const REQUIRED_CLICKS_FOR_POLE_MODAL = 3;
   const POLE_RADIUS = 0.18;
   const CROSS_ARM_LENGTH = 2.5;
   const CROSS_ARM_RADIUS = 0.12;
@@ -64,14 +63,13 @@
   const poleDataIndex = new Map();
   const poleFormState = {
     pendingCartesian: null,
-    clickCount: 0,
-    lastClickAt: 0,
   };
 
   let poleSectionOpenAnimationResetTimer = null;
   let poleSectionPositionRaf = null;
 
   let clickHandler = null;
+  let isPoleCaptureActive = false;
 
   function getViewer() {
     return typeof viewer !== "undefined" ? viewer : window.viewer;
@@ -958,7 +956,20 @@
 
     const poleNumberInput = document.getElementById("poleNumber");
     if (poleNumberInput) {
-      poleNumberInput.focus();
+      window.requestAnimationFrame(() => {
+        poleNumberInput.focus();
+      });
+    }
+  }
+
+  function togglePoleCapture(active) {
+    isPoleCaptureActive = Boolean(active);
+
+    const poleToolBtn = document.getElementById("btnPoleTool");
+    if (poleToolBtn) {
+      poleToolBtn.classList.toggle("capture-active", isPoleCaptureActive);
+      poleToolBtn.title = isPoleCaptureActive ? "Pole Tool (active)" : "Pole Tool";
+      poleToolBtn.setAttribute("aria-label", isPoleCaptureActive ? "Pole Tool active" : "Pole Tool");
     }
   }
 
@@ -1065,6 +1076,10 @@
       updatePoleVisibility(searchValue);
       resetPoleForm();
       closePoleModal();
+      if (isPoleCaptureActive) {
+        const poleToolBtn = document.getElementById("btnPoleTool");
+        poleToolBtn?.focus();
+      }
     } catch (error) {
       console.error("Failed to save pole:", error?.response?.data || error.message || error);
       alert("Failed to save pole. Check console for details.");
@@ -1099,6 +1114,10 @@
   }
 
   function handleClick(clickPosition) {
+    if (!isPoleCaptureActive) {
+      return;
+    }
+
     const cesiumViewer = getViewer();
     if (!cesiumViewer) {
       return;
@@ -1110,21 +1129,6 @@
     if (!pickedPosition) {
       return;
     }
-
-    const now = Date.now();
-    // Reset count if user paused for too long between clicks.
-    if (now - poleFormState.lastClickAt > 2000) {
-      poleFormState.clickCount = 0;
-    }
-
-    poleFormState.lastClickAt = now;
-    poleFormState.clickCount += 1;
-
-    if (poleFormState.clickCount < REQUIRED_CLICKS_FOR_POLE_MODAL) {
-      return;
-    }
-
-    poleFormState.clickCount = 0;
     openPoleModal(pickedPosition);
   }
 
@@ -1145,6 +1149,11 @@
 
     const form = document.getElementById("poleForm");
     form?.addEventListener("submit", savePoleWithForm);
+
+    const poleToolBtn = document.getElementById("btnPoleTool");
+    poleToolBtn?.addEventListener("click", () => {
+      togglePoleCapture(!isPoleCaptureActive);
+    });
 
     const closeBtn = document.getElementById("poleModalClose");
     closeBtn?.addEventListener("click", closePoleModal);

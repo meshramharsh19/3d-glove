@@ -39,6 +39,7 @@
 
   <!-- Styles -->
   <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/styles.css" />
   <link rel="stylesheet" href="css/popup.css" />
   <link rel="icon" href="data:," />
 </head>
@@ -57,7 +58,12 @@
     <div class="topbar-center">
       <div id="search-container" class="header-search-panel">
         <div class="header-searchbox">
-          <span class="header-search-icon">🔎</span>
+          <select id="searchType" class="header-search-type" aria-label="Search type">
+            <option value="all" selected>All</option>
+            <option value="property">Property</option>
+            <option value="pole">Pole</option>
+            <option value="pipeline">Pipeline</option>
+          </select>
           <input type="text" id="searchInput" placeholder="Search property, owner or phone"
             oninput="debounce(searchProperties, 300)()" onfocus="searchProperties()"
             onkeydown="if(event.key==='Enter'){event.preventDefault();searchProperties();}" autocomplete="off" />
@@ -185,16 +191,39 @@
       <div id="cesiumContainer"></div>
 
       <div class="map-rail" aria-label="Map controls">
-        <button id="btnHome" class="rail-btn" title="Center on model">⌂</button>
-        <button id="btnMode" class="rail-btn" title="Toggle 2D/3D">2D</button>
-        <button id="btnZoomIn" class="rail-btn" title="Zoom in">+</button>
-        <button id="btnZoomOut" class="rail-btn" title="Zoom out">−</button>
-        <div class="rail-divider" aria-hidden="true"></div>
-        <button class="rail-btn" title="Ground" aria-label="Ground" onclick="resetToGroundLevel()">⏚</button>
-        <button class="rail-btn" title="Center" aria-label="Center" onclick="centerOnModel()">◎</button>
-        <button class="rail-btn" title="Free" aria-label="Free" onclick="optimizeMemory()">♻</button>
-        <button class="rail-btn" title="Street View" aria-label="Street View"
-          onclick="openStreetViewFromMap()">👁</button>
+        <details class="tools-dock" id="mapToolsDock">
+          <summary class="rail-btn tools-launcher" aria-label="Open map tools" title="Open map tools">☰</summary>
+          <div class="tools-dock-menu" role="menu" aria-label="Map tools">
+            <div class="tools-group">
+              <span class="tools-group-title">View</span>
+              <div class="tools-grid">
+                <button id="btnHome" class="rail-btn" title="Center on model">⌂</button>
+                <button id="btnMode" class="rail-btn" title="Toggle 2D/3D">2D</button>
+                <button id="btnZoomIn" class="rail-btn" title="Zoom in">+</button>
+                <button id="btnZoomOut" class="rail-btn" title="Zoom out">−</button>
+              </div>
+            </div>
+
+            <div class="tools-group">
+              <span class="tools-group-title">Utilities</span>
+              <div class="tools-grid">
+                <button class="rail-btn" title="Ground" aria-label="Ground" onclick="resetToGroundLevel()">⏚</button>
+                <button class="rail-btn" title="Center" aria-label="Center" onclick="centerOnModel()">◎</button>
+                <button class="rail-btn" title="Free" aria-label="Free" onclick="optimizeMemory()">♻</button>
+                <button class="rail-btn" title="Street View" aria-label="Street View"
+                  onclick="openStreetViewFromMap()">👁</button>
+              </div>
+            </div>
+
+            <div class="tools-group">
+              <span class="tools-group-title">Survey</span>
+              <div class="tools-grid">
+                <button id="btnPoleTool" class="rail-btn" title="Pole Tool" aria-label="Pole Tool">🗼</button>
+                <button id="btnPipelineTool" class="rail-btn" title="Pipeline Tool" aria-label="Pipeline Tool">🛠</button>
+              </div>
+            </div>
+          </div>
+        </details>
       </div>
 
       <div class="map-statusbar" aria-label="Camera coordinates">
@@ -239,6 +268,8 @@
   <script src="js/8_mapillary_streetview.js"></script>
   <script src="js/conversion.js"></script>
   <script src="js/pole_placement.js"></script>
+  <script src="js/scene.js"></script>
+  <script src="js/sewagePipeline.js"></script>
   <!-- Street View Panel -->
   <div id="streetViewPanel" class="street-view-panel hidden">
     <div class="sv-header">
@@ -471,6 +502,62 @@
     </div>
   </div>
 
+  <div id="sewagePanel" class="sewage-panel hidden" aria-label="Sewage pipeline controls">
+    <div class="sewage-panel-header">
+      <h4>Sewage Pipeline</h4>
+      <span id="pipelinePointCount" class="pipeline-point-count">0 points selected</span>
+      <button type="button" class="sewage-panel-close" id="btnCloseSewagePanel" aria-label="Close sewage panel">✕</button>
+    </div>
+
+    <div class="sewage-panel-body">
+      <div class="sewage-field">
+        <label for="pipelineId">Pipeline ID</label>
+        <input type="text" id="pipelineId" placeholder="SG-PIPE-001" />
+      </div>
+
+      <div class="sewage-field-row">
+        <div class="sewage-field">
+          <label for="pipelineDiameter">Diameter (mm)</label>
+          <input type="number" id="pipelineDiameter" min="1" step="1" placeholder="600" />
+        </div>
+
+        <div class="sewage-field">
+          <label for="pipelineInstallationDate">Installation Date</label>
+          <input type="date" id="pipelineInstallationDate" />
+        </div>
+      </div>
+
+      <div class="sewage-field-row">
+        <div class="sewage-field">
+          <label for="pipelineMaterial">Material</label>
+          <select id="pipelineMaterial">
+            <option value="PVC">PVC</option>
+            <option value="RCC">RCC</option>
+            <option value="HDPE">HDPE</option>
+          </select>
+        </div>
+
+        <div class="sewage-field">
+          <label for="pipelineStatus">Status</label>
+          <select id="pipelineStatus">
+            <option value="Planned">Planned</option>
+            <option value="Active">Active</option>
+            <option value="Maintenance">Maintenance</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="sewage-actions">
+        <button type="button" class="sewage-btn" id="btnAddPipelinePoint">Add Point</button>
+        <button type="button" class="sewage-btn" id="btnSavePipeline">Save Pipeline</button>
+        <button type="button" class="sewage-btn alt" id="btnLoadPipelines">Load Pipelines</button>
+        <button type="button" class="sewage-btn alt" id="btnClearPipelinePoints">Clear Points</button>
+      </div>
+
+      <div id="sewageStatus" class="sewage-status">Use Add Point, then click multiple map locations.</div>
+    </div>
+  </div>
+
 
   <script>
     const toggleBtn = document.getElementById("themeToggle");
@@ -512,12 +599,35 @@
     const btnMode = document.getElementById("btnMode");
     const btnZoomIn = document.getElementById("btnZoomIn");
     const btnZoomOut = document.getElementById("btnZoomOut");
+    const mapToolsDock = document.getElementById("mapToolsDock");
     const hudLon = document.getElementById("hudLon");
     const hudLat = document.getElementById("hudLat");
     const hudAlt = document.getElementById("hudAlt");
     const navHeading = document.getElementById("navHeading");
     const navPitch = document.getElementById("navPitch");
     const navRoll = document.getElementById("navRoll");
+
+    function closeMapToolsDock() {
+      if (mapToolsDock?.open) {
+        mapToolsDock.open = false;
+      }
+    }
+
+    mapToolsDock?.querySelectorAll("button").forEach((button) => {
+      button.addEventListener("click", () => {
+        window.setTimeout(closeMapToolsDock, 0);
+      });
+    });
+
+    document.addEventListener("click", (event) => {
+      if (!mapToolsDock?.open) {
+        return;
+      }
+
+      if (!mapToolsDock.contains(event.target)) {
+        closeMapToolsDock();
+      }
+    });
 
     btnHome?.addEventListener("click", () => {
       if (typeof centerOnModel === "function") centerOnModel();
