@@ -683,13 +683,18 @@
     }
 
     const suggestions = [];
+    const queryText = queryWithoutPrefix.toLowerCase();
 
     poleEntities.forEach((_entity, poleId) => {
       const poleData = poleDataIndex.get(poleId) || {};
       const poleNumber = String(poleData.poleNumber || poleId);
       const normalizedPoleNumber = normalizePoleNumber(poleNumber);
+      const searchableText = poleSearchIndex.get(poleId) || "";
 
-      if (normalizedQuery && !normalizedPoleNumber.includes(normalizedQuery)) {
+      const matchesNumber = normalizedQuery && normalizedPoleNumber.includes(normalizedQuery);
+      const matchesText = queryText && searchableText.includes(queryText);
+
+      if (!poleKeywordOnly && !matchesNumber && !matchesText) {
         return;
       }
 

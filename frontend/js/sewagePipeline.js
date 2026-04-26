@@ -686,16 +686,16 @@
     bindUi();
     setDefaultDate();
     updatePointCount();
-    fetchPipelineCatalog().catch((error) => {
-      console.warn("Unable to prefetch sewage pipelines for search", error);
+    loadPipelines().catch((error) => {
+      console.warn("Failed to auto-load sewage pipelines on startup", error);
     });
 
     const loadBtn = document.getElementById("btnLoadPipelines");
     if (loadBtn) {
-      loadBtn.textContent = "Load Pipelines";
+      loadBtn.textContent = "Hide Pipelines";
     }
 
-    setStatus("Saved pipelines are hidden. Click Load Pipelines to view.", false);
+    setStatus("Loading saved sewage pipelines...", false);
     if (!document.getElementById("sewagePanel")?.classList.contains("hidden")) {
       focusPipelineId();
     }

@@ -1,0 +1,5 @@
+[dotenv@17.2.3] injecting env (2) from .env -- tip: 👥 sync secrets across teammates & machines: https://dotenvx.com/ops
+Server running at http://localhost:4000
+✅ MongoDB Connected
+✅ MongoDB Host: ac-orkkhks-shard-00-02.p4nxuuy.mongodb.net
+✅ MongoDB Database: survey

@@ -2,8 +2,15 @@ const express = require("express");
 const cors = require("cors");
 const http = require("http");
 const { Server } = require("socket.io");
+const dns = require("dns");
 const mongoose = require("mongoose");
 const path = require("path");
+require("dotenv").config();
+
+dns.setServers([
+  "1.1.1.1",
+  "8.8.8.8",
+]);
 
 const app = express();
 
@@ -14,21 +21,30 @@ app.use(express.json());
 // MongoDB Connection
 // =========================
 
-mongoose.connect(
-  'mongodb+srv://meshramharsh19:Harsh1909@cojag.p4nxuuy.mongodb.net/survey?appName=Cojag',
-  {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-  }
-)
+const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://meshramharsh19:Harsh1909@cojag.p4nxuuy.mongodb.net/survey?appName=Cojag";
+mongoose.connect(MONGODB_URI, {
+  retryWrites: true,
+  w: "majority",
+  serverSelectionTimeoutMS: 10000,
+  socketTimeoutMS: 45000,
+})
+
 .then(() => {
 
-  console.log("MongoDB Connected");
+  console.log("✅ MongoDB Connected");
+  console.log("✅ MongoDB Host:", mongoose.connection.host);
+  console.log("✅ MongoDB Database:", mongoose.connection.name);
 
 })
-.catch(err => {
 
-  console.error("Mongo Error:", err);
+.catch((err) => {
+
+  console.error("❌ Mongo Error:", err);
+  console.error("📝 Make sure:");
+  console.error("  1. MongoDB Atlas cluster is running (not paused)");
+  console.error("  2. Your IP is whitelisted in MongoDB Atlas");
+  console.error("  3. Connection string is correct in .env file");
+  console.error("  4. DNS is not blocking SRV lookups for mongodb+srv:// URIs");
 
 });
 
