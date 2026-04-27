@@ -62,11 +62,12 @@
             <option value="all" selected>All</option>
             <option value="property">Property</option>
             <option value="pole">Pole</option>
+            <option value="manhole">Manhole</option>
             <option value="pipeline">Pipeline</option>
           </select>
-          <input type="text" id="searchInput" placeholder="Search property, owner or phone"
+          <input type="text" id="searchInput" placeholder="Search property, pole, manhole or pipeline"
             oninput="debounce(searchProperties, 300)()" onfocus="searchProperties()"
-            onkeydown="if(event.key==='Enter'){event.preventDefault();searchProperties();}" autocomplete="off" />
+            onkeydown="if(event.key==='Enter'){event.preventDefault();searchProperties(true);}" autocomplete="off" />
         </div>
         <div id="search-results"></div>
       </div>
@@ -220,6 +221,7 @@
               <div class="tools-grid">
                 <button id="btnPoleTool" class="rail-btn" title="Pole Tool" aria-label="Pole Tool">🗼</button>
                 <button id="btnPipelineTool" class="rail-btn" title="Pipeline Tool" aria-label="Pipeline Tool">🛠</button>
+                <button id="btnManholeTool" class="rail-btn" title="Manhole Tool" aria-label="Manhole Tool">🚰</button>
               </div>
             </div>
           </div>
@@ -268,6 +270,7 @@
   <script src="js/8_mapillary_streetview.js"></script>
   <script src="js/conversion.js"></script>
   <script src="js/pole_placement.js"></script>
+  <script src="js/manhole_placement.js"></script>
   <script src="js/scene.js"></script>
   <script src="js/sewagePipeline.js"></script>
   <!-- Street View Panel -->
@@ -497,6 +500,95 @@
         <div class="pole-modal-actions">
           <button type="submit" class="pole-modal-save">Save Pole</button>
           <button type="button" class="pole-modal-cancel" id="poleModalCancel">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="manholeModal" class="pole-modal" aria-hidden="true">
+    <div class="pole-modal-card" role="dialog" aria-modal="true" aria-labelledby="manholeModalTitle">
+      <div class="pole-modal-header">
+        <div class="pole-modal-header-copy">
+          <p class="pole-modal-kicker">Field Survey Sheet</p>
+          <h3 id="manholeModalTitle">Add Manhole</h3>
+        </div>
+        <button type="button" class="pole-modal-close" id="manholeModalClose" aria-label="Close manhole form">✕</button>
+      </div>
+
+      <div class="pole-modal-hero">
+        <div class="pole-modal-hero-mark" aria-hidden="true">●</div>
+        <div class="pole-modal-hero-copy">
+          <p class="pole-modal-lead">Capture a geotagged manhole asset with structured field data.</p>
+          <p class="pole-modal-note">Choose the manhole type, then save the exact location from the map.</p>
+        </div>
+      </div>
+
+      <form id="manholeForm" class="pole-modal-body">
+        <div class="pole-modal-field">
+          <label for="manholeId">Manhole ID</label>
+          <input type="text" id="manholeId" placeholder="MH-101" required />
+        </div>
+
+        <div class="pole-modal-field-row">
+          <div class="pole-modal-field">
+            <label for="manholeType">Type</label>
+            <select id="manholeType" required>
+              <option value="sewage">Sewage Manhole</option>
+              <option value="water">Water Manhole</option>
+              <option value="stormwater">Stormwater Manhole</option>
+              <option value="electrical">Electrical Manhole</option>
+              <option value="communication">Communication Manhole</option>
+              <option value="gas">Gas Manhole</option>
+            </select>
+          </div>
+          <div class="pole-modal-field">
+            <label for="manholeMaterial">Material</label>
+            <select id="manholeMaterial">
+              <option value="">Select Material</option>
+              <option value="concrete">Concrete</option>
+              <option value="brick">Brick</option>
+              <option value="pvc">PVC</option>
+              <option value="hdpe">HDPE</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="pole-modal-field-row">
+          <div class="pole-modal-field">
+            <label for="manholeDiameter">Diameter (m)</label>
+            <input type="number" id="manholeDiameter" min="0.1" step="0.1" value="1.0" required />
+          </div>
+          <div class="pole-modal-field">
+            <label for="manholeDepth">Depth (m)</label>
+            <input type="number" id="manholeDepth" min="0.1" step="0.1" value="2.0" required />
+          </div>
+        </div>
+
+        <div class="pole-modal-field-row">
+          <div class="pole-modal-field">
+            <label for="manholeStatus">Status</label>
+            <select id="manholeStatus">
+              <option value="Active">Active</option>
+              <option value="Maintenance">Maintenance</option>
+              <option value="Closed">Closed</option>
+              <option value="Planned">Planned</option>
+            </select>
+          </div>
+          <div class="pole-modal-field">
+            <label for="manholeInstallationDate">Installation Date</label>
+            <input type="date" id="manholeInstallationDate" required />
+          </div>
+        </div>
+
+        <div class="pole-modal-field">
+          <label for="manholeDescription">Description</label>
+          <textarea id="manholeDescription" placeholder="Add any additional notes..." rows="3"></textarea>
+        </div>
+
+        <div class="pole-modal-actions">
+          <button type="button" class="pole-modal-save" id="saveManholeBtn">Save Manhole</button>
+          <button type="button" class="pole-modal-cancel" id="cancelManholeBtn">Cancel</button>
         </div>
       </form>
     </div>

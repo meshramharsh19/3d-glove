@@ -234,22 +234,19 @@
     const pipelineEntity = renderedPipelineEntities.get(normalizedId) ||
       cesiumViewer.entities.values.find((entity) => entity.name === `sewage-pipeline-${pipelineId}`);
 
-    if (!pipelineEntity || !pipelineEntity.polylineVolume) {
+    if (!pipelineEntity) {
       return false;
     }
 
     const pipelineData = sewagePipelineDataIndex.get(normalizedId) || {};
-    const positions = toCesiumPositions(pipelineData.points || []);
-    if (!positions.length) {
-      return false;
-    }
+    const fallbackDiameter = Number(pipelineData.diameter) || 600;
 
     cesiumViewer.flyTo(pipelineEntity, {
       duration: 1.3,
       offset: new Cesium.HeadingPitchRange(
         Cesium.Math.toRadians(0),
         Cesium.Math.toRadians(-32),
-        Math.max(180, (pipelineData.diameter || 600) * 2)
+        Math.max(180, fallbackDiameter * 2)
       ),
     });
 
@@ -686,16 +683,16 @@
     bindUi();
     setDefaultDate();
     updatePointCount();
-    loadPipelines().catch((error) => {
-      console.warn("Failed to auto-load sewage pipelines on startup", error);
+    fetchPipelineCatalog().catch((error) => {
+      console.warn("Failed to preload sewage pipeline catalog", error);
     });
 
     const loadBtn = document.getElementById("btnLoadPipelines");
     if (loadBtn) {
-      loadBtn.textContent = "Hide Pipelines";
+      loadBtn.textContent = "Load Pipelines";
     }
 
-    setStatus("Loading saved sewage pipelines...", false);
+    setStatus("Pipelines hidden. Search specific pipeline to show it.", false);
     if (!document.getElementById("sewagePanel")?.classList.contains("hidden")) {
       focusPipelineId();
     }

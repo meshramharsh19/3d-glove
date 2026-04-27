@@ -18,9 +18,10 @@ function setSearchPlaceholder(mode) {
   }
 
   const placeholders = {
-    all: "Search property, pole or pipeline",
+    all: "Search property, pole, manhole or pipeline",
     property: "Search property, owner or phone",
     pole: "Search pole number",
+    manhole: "Search manhole ID",
     pipeline: "Search pipeline ID",
   };
 
@@ -163,6 +164,146 @@ function isPipelineQuery(query) {
     /^(sg[-\s]?)?pipe[-\s]?\d+/i.test(normalized);
 }
 
+function isManholeQuery(query) {
+  const normalized = String(query || "").trim().toLowerCase();
+  return /^(?:manhole|mh)\s*[:\-\s]?/i.test(normalized) ||
+    /^(mh[-\s]?)?\d+/i.test(normalized);
+}
+
+async function flyToPipelineFromQuery(rawQuery) {
+  if (typeof window.getSewagePipelineSuggestions !== "function") {
+    return false;
+  }
+
+  const suggestions = window.getSewagePipelineSuggestions(rawQuery, 1);
+  const target = Array.isArray(suggestions) ? suggestions[0] : null;
+  if (!target) {
+    return false;
+  }
+
+  if (typeof window.ensureSewagePipelineVisible === "function") {
+    await window.ensureSewagePipelineVisible();
+  }
+
+  if (typeof window.updateSewagePipelineVisibility === "function") {
+    window.updateSewagePipelineVisibility(`pipeline:${target.pipelineId}`);
+  }
+
+  if (typeof window.focusSewagePipelineById === "function") {
+    return Boolean(window.focusSewagePipelineById(target.pipelineId));
+  }
+
+  return false;
+}
+
+function flyToPoleFromQuery(rawQuery) {
+  if (typeof window.getPoleSuggestions !== "function") {
+    return false;
+  }
+
+  const suggestions = window.getPoleSuggestions(rawQuery, 1);
+  const target = Array.isArray(suggestions) ? suggestions[0] : null;
+  if (!target) {
+    return false;
+  }
+
+  if (typeof window.filterPolesByQuery === "function") {
+    window.filterPolesByQuery(`pole:${target.poleNumber}`);
+  }
+
+  if (typeof window.focusPoleByNumber === "function") {
+    window.focusPoleByNumber(target.poleNumber);
+    return true;
+  }
+
+  return false;
+}
+
+async function flyToManholeFromQuery(rawQuery) {
+  if (typeof window.getManholeSuggestions !== "function") {
+    return false;
+  }
+
+  const suggestions = window.getManholeSuggestions(rawQuery, 1);
+  const target = Array.isArray(suggestions) ? suggestions[0] : null;
+  if (!target) {
+    return false;
+  }
+
+  if (typeof window.ensureManholesLoaded === "function") {
+    await window.ensureManholesLoaded();
+  }
+
+  if (typeof window.updateManholeVisibility === "function") {
+    window.updateManholeVisibility(`manhole:${target.manholeId}`);
+  }
+
+  if (typeof window.focusManholeById === "function") {
+    return Boolean(window.focusManholeById(target.manholeId));
+  }
+
+  return false;
+}
+
+function renderManholeSuggestions(resultsContainer, rawQuery) {
+  if (typeof window.getManholeSuggestions !== "function") {
+    return 0;
+  }
+
+  const suggestions = window.getManholeSuggestions(rawQuery, 8);
+  if (!Array.isArray(suggestions) || suggestions.length === 0) {
+    return 0;
+  }
+
+  suggestions.forEach((suggestion) => {
+    const item = document.createElement("div");
+    item.className = "search-result-item";
+    const typeLabel =
+      typeof window.getManholeTypeLabel === "function"
+        ? window.getManholeTypeLabel(suggestion.type)
+        : suggestion.type;
+
+    item.innerHTML = `
+<div style="display: flex; align-items: center; justify-content: space-between;">
+  <div>
+    <strong>manhole:${suggestion.manholeId}</strong>
+    <span class="search-result-badge pole">MANHOLE</span><br>
+    <small>${typeLabel} | ${suggestion.diameter}m diameter</small>
+  </div>
+</div>
+`;
+
+    item.onclick = async () => {
+      const searchInput = document.getElementById("searchInput");
+      const results = document.getElementById("search-results");
+
+      if (searchInput) {
+        searchInput.value = `manhole:${suggestion.manholeId}`;
+      }
+
+      if (typeof window.ensureManholesLoaded === "function") {
+        await window.ensureManholesLoaded();
+      }
+
+      if (typeof window.updateManholeVisibility === "function") {
+        window.updateManholeVisibility(`manhole:${suggestion.manholeId}`);
+      }
+
+      if (typeof window.focusManholeById === "function") {
+        window.focusManholeById(suggestion.manholeId);
+      }
+
+      if (results) {
+        results.innerHTML = "";
+      }
+    };
+
+    resultsContainer.appendChild(item);
+  });
+
+  return suggestions.length;
+}
+
 // ======================================================
 // === NAYA HELPER FUNCTION: Property ke liye Pin URL ===
 // ======================================================
@@ -229,7 +370,7 @@ function getPinUrlForProperty(propertyData) {
 /**
  * Search properties in the ptaxDatabase based on user input.
  */
-function searchProperties() {
+async function searchProperties(autoFly = false) {
   const query = document
     .getElementById("searchInput")
     .value.toLowerCase()
@@ -242,6 +383,7 @@ function searchProperties() {
 
   const allowPipeline = searchMode === "all" || searchMode === "pipeline";
   const allowPole = searchMode === "all" || searchMode === "pole";
+  const allowManhole = searchMode === "all" || searchMode === "manhole";
   const allowProperty = searchMode === "all" || searchMode === "property";
 
   const pipelineSuggestionCount = allowPipeline
@@ -249,6 +391,9 @@ function searchProperties() {
     : 0;
   const poleSuggestionCount = allowPole
     ? renderPoleSuggestions(resultsContainer, query)
+    : 0;
+  const manholeSuggestionCount = allowManhole
+    ? renderManholeSuggestions(resultsContainer, query)
     : 0;
 
   if (!query) {
@@ -264,6 +409,8 @@ function searchProperties() {
     if (pipelineSuggestionCount === 0) {
       resultsContainer.innerHTML +=
         '<div class="search-no-results">No sewage pipelines found.</div>';
+    } else if (autoFly) {
+      await flyToPipelineFromQuery(query);
     }
     return;
   }
@@ -272,14 +419,39 @@ function searchProperties() {
     if (poleSuggestionCount === 0) {
       resultsContainer.innerHTML =
         '<div class="search-no-results">No poles found.</div>';
+    } else if (autoFly) {
+      flyToPoleFromQuery(query);
+    }
+    return;
+  }
+
+  if (searchMode === "manhole" || query.startsWith("manhole:") || isManholeQuery(query)) {
+    if (manholeSuggestionCount === 0) {
+      resultsContainer.innerHTML =
+        '<div class="search-no-results">No manholes found.</div>';
+    } else if (autoFly) {
+      await flyToManholeFromQuery(query);
     }
     return;
   }
 
   if (!allowProperty) {
-    if (query && pipelineSuggestionCount === 0 && poleSuggestionCount === 0) {
+    if (query && pipelineSuggestionCount === 0 && poleSuggestionCount === 0 && manholeSuggestionCount === 0) {
       resultsContainer.innerHTML =
         '<div class="search-no-results">No results found.</div>';
+    } else if (autoFly) {
+      if (poleSuggestionCount > 0 && flyToPoleFromQuery(query)) {
+        return;
+      }
+      if (manholeSuggestionCount > 0) {
+        const flewToManhole = await flyToManholeFromQuery(query);
+        if (flewToManhole) {
+          return;
+        }
+      }
+      if (pipelineSuggestionCount > 0) {
+        await flyToPipelineFromQuery(query);
+      }
     }
     return;
   }
@@ -388,6 +560,28 @@ item.innerHTML = `
         matches.length - 50
       } more results.`;
       resultsContainer.appendChild(moreResults);
+    }
+  }
+
+  if (autoFly) {
+    if (matches.length > 0) {
+      flyToHouse(matches[0].id, matches[0].data);
+      return;
+    }
+
+    if (poleSuggestionCount > 0 && flyToPoleFromQuery(query)) {
+      return;
+    }
+
+    if (manholeSuggestionCount > 0) {
+      const flewToManhole = await flyToManholeFromQuery(query);
+      if (flewToManhole) {
+        return;
+      }
+    }
+
+    if (pipelineSuggestionCount > 0) {
+      await flyToPipelineFromQuery(query);
     }
   }
 }

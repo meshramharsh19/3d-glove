@@ -67,6 +67,19 @@ handler.setInputAction(function (click) {
   const pickedObject =
     viewer.scene.pick(click.position);
 
+  // Check if manhole tool is active and get the ground position
+  if (typeof window.handleManholeMapClick === "function") {
+    try {
+      const cartesianPosition = viewer.scene.pickPosition(click.position);
+      if (Cesium.defined(cartesianPosition)) {
+        console.log("🚰 Ground position picked:", cartesianPosition);
+        window.handleManholeMapClick(cartesianPosition);
+      }
+    } catch (e) {
+      console.warn("Error calculating manhole position:", e);
+    }
+  }
+
   // 2️⃣ Check valid entity
   if (
     Cesium.defined(pickedObject) &&
