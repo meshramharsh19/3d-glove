@@ -1,0 +1,1171 @@
+================================================================================
+           3D-GLOVE PROJECT - COMPREHENSIVE DOCUMENTATION
+================================================================================
+
+⚡ QUICK REFERENCE (IN SHORT)
+================================================================================
+
+WHAT IS IT?
+  Urban survey platform: 3D property viewing + pole/sewage management
+
+TECH STACK:
+  Backend: Node.js + Express + MongoDB + Socket.IO
+  Frontend: HTML/CSS/JS + Cesium.js + Three.js (3D visualization)
+
+KEY FEATURES:
+  ✓ 3D mapping and models        ✓ Real-time updates (WebSocket)
+  ✓ Pole management              ✓ Sewage pipeline tracking
+  ✓ Search & filters              ✓ Measurements & street view
+  ✓ PDF reports                  ✓ Property annotations
+
+RUNNING PROJECT:
+
+  Backend (Terminal 1):
+    $ cd backend
+    $ npm install
+    $ npm start
+    → Runs on http://localhost:4000
+
+  Frontend (Terminal 2):
+    $ cd frontend
+    $ npx http-server --port 5500
+    → Open http://localhost:5500 in browser
+
+MAIN ROUTES:
+
+  POLES API:
+    POST   /api/poles/add-pole      Create pole
+    GET    /api/poles               List poles
+    GET    /api/poles/:number       Get single pole
+    PUT    /api/poles/:number       Update pole
+    DELETE /api/poles/:number       Delete pole
+
+  SEWAGE API:
+    POST   /api/sewage/add          Create pipeline
+    GET    /api/sewage              List pipelines
+    GET    /api/sewage/:id          Get pipeline
+    PUT    /api/sewage/:id          Update pipeline
+    DELETE /api/sewage/:id          Delete pipeline
+
+DATABASE MODELS:
+
+  POLES:
+    poleNumber, type (electric/light/communication/traffic_signal/cctv)
+    voltage, height, position (lat/lon/height), installationDate
+
+  SEWAGE PIPELINES:
+    pipelineId, diameter, material (PVC/RCC/HDPE)
+    status (Planned/Active/Maintenance), points[]
+
+FRONTEND MODULES:
+
+  1_config_globals.js    → Config & constants
+  2_ui_helpers.js        → UI functions
+  3_utils.js             → API & utilities
+  4_model_manager.js     → 3D model loading
+  5_layer_manager.js     → Map layers
+  6_search_feature.js    → Property search
+  7_main.js              → Main app logic
+  8_mapillary_streetview → Street view
+  9_measurement_tool.js  → Measurement tools
+  10_banner_manager.js   → Annotations
+
+COMMON ISSUES & FIXES:
+
+  ❌ Backend won't start?
+    → Check MongoDB connection
+    → Verify .env file has MONGODB_URI
+    → Check if port 4000 is free
+
+  ❌ Frontend can't reach API?
+    → Use http://localhost:4000/api/... (not relative paths)
+    → Check CORS enabled
+    → Verify backend is running
+
+  ❌ 3D models not showing?
+    → Check browser console for errors
+    → Verify model files in frontend/files/
+    → Check network tab for loading issues
+
+  ❌ Real-time updates not working?
+    → Check Socket.IO connection
+    → Verify WebSocket in browser Network tab
+    → Restart both frontend & backend
+
+PROJECT FILES OVERVIEW:
+
+  Backend:
+    server.js          Main server (Express + MongoDB + Socket.IO)
+    socket.js          WebSocket event handlers
+    models/
+      ├─ Pole.js       Pole schema
+      └─ SewagePipeline.js  Pipeline schema
+    routes/
+      ├─ poleRoutes.js      Pole endpoints
+      └─ sewageRoutes.js    Pipeline endpoints
+
+  Frontend:
+    index.html         Main HTML (Cesium + Three.js libraries)
+    script.js          Initialization
+    js/                Feature modules (1-10, conversion, pole_placement, etc)
+    css/               Styling (style.css, popup.css)
+    Data files:        KML maps, 3D models, property data
+
+DEPLOYMENT:
+
+  Docker:
+    $ docker-compose up --build
+    → Runs frontend + backend + MongoDB containers
+
+ENV SETUP:
+
+  Create .env in backend/
+    MONGODB_URI=mongodb+srv://user:pass@cluster.mongodb.net/survey?appName=Cojag
+    PORT=4000
+    NODE_ENV=development
+
+
+================================================================================
+
+PROJECT OVERVIEW
+================================================================================
+
+3D-GLOVE is a Geospatial Urban Survey & Property Management Platform built with
+modern web technologies. It provides a professional interface for visualizing and
+managing urban infrastructure including:
+  • 3D properties and houses with textured models
+  • Utility poles (electric, light, communication, traffic signals, CCTV)
+  • Sewage pipeline networks with geospatial data
+  • Overlay layers (roads, custom KML maps)
+  • Real-time property updates via WebSockets
+  • Interactive tools (measurements, street view, PDF reporting)
+
+The project consists of:
+  - FRONTEND: Interactive 3D visualization web application
+  - BACKEND: Express.js REST API + MongoDB database + WebSocket server
+
+
+================================================================================
+TECHNOLOGY STACK
+================================================================================
+
+BACKEND TECHNOLOGIES:
+  • Runtime: Node.js
+  • Framework: Express.js v5.2.1 (REST API server)
+  • Database: MongoDB v8.20.2 (via Mongoose ODM)
+  • Real-time Communication: Socket.IO v4.8.1 (WebSockets)
+  • Utilities:
+    - CORS v2.8.5 (Cross-Origin Resource Sharing)
+    - dotenv v17.2.3 (Environment variables)
+    - nodemon v3.1.11 (Development auto-reload)
+
+FRONTEND TECHNOLOGIES:
+  • View: HTML5 with Responsive Design
+  • 3D Visualization:
+    - Cesium.js v1.104 (Geospatial 3D mapping and visualization)
+    - Three.js v0.132.2 (WebGL 3D rendering)
+    - OBJLoader & MTLLoader (3D model loading)
+    - GLTFExporter (Model export)
+  • Utilities:
+    - Axios (HTTP client for API calls)
+    - Socket.IO (Real-time WebSocket client)
+    - Lodash (Utility functions)
+    - JSZip (ZIP file handling)
+    - jsPDF v2.5.1 (PDF generation and reporting)
+  • Styling: Custom CSS with modular organization
+
+
+================================================================================
+PROJECT STRUCTURE
+================================================================================
+
+ROOT DIRECTORY:
+  ├── docker-compose.yml          [Docker setup for containerization]
+  ├── package.json                [Root dependencies]
+  ├── fileStructure.txt           [Project file listing]
+  │
+  ├── BACKEND/
+  │   ├── server.js               [Main Express server entry point]
+  │   ├── socket.js               [WebSocket event handlers]
+  │   ├── package.json            [Backend dependencies]
+  │   ├── Dockerfile              [Docker configuration for backend]
+  │   ├── config/
+  │   │   └── sampleSewagePipeline.json  [Sample pipeline configuration]
+  │   ├── models/
+  │   │   ├── Pole.js             [MongoDB Pole schema & model]
+  │   │   └── SewagePipeline.js    [MongoDB SewagePipeline schema & model]
+  │   └── routes/
+  │       ├── poleRoutes.js        [Pole CRUD API endpoints]
+  │       └── sewageRoutes.js      [Sewage pipeline API endpoints]
+  │
+  └── FRONTEND/
+      ├── index.html              [Main HTML document]
+      ├── script.js               [Main initialization script]
+      ├── styles.css              [Primary stylesheet]
+      ├── Dockerfile              [Docker configuration for frontend]
+      ├── Data Files:
+      │   ├── HOUSES polygon.kmz   [KML map data for houses]
+      │   ├── houses.kmz           [Alternative house data format]
+      │   ├── roads.kmz            [Roads overlay data]
+      │   ├── paths.kmz            [Paths overlay data]
+      │   └── ptax_data.js         [Property tax data]
+      ├── css/                     [Stylesheets directory]
+      │   ├── popup.css            [Popup and modal styles]
+      │   ├── style.css            [General styles]
+      │   └── styles.css           [Additional styles]
+      ├── files/                   [3D model assets]
+      │   └── Task-of-2025-11-13T090510333Z-textured_model/
+      │       ├── odm_textured_model_geo.conf      [Model configuration]
+      │       ├── odm_textured_model_geo.mtl       [Material definitions]
+      │       └── odm_textured_model.mtl            [Material library]
+      └── js/                      [JavaScript modules]
+          ├── 1_config_globals.js          [Global configuration & constants]
+          ├── 2_ui_helpers.js              [UI helper functions]
+          ├── 3_utils.js                   [Utility functions]
+          ├── 4_model_manager.js           [3D model loading & management]
+          ├── 5_layer_manager.js           [Map layer management]
+          ├── 6_search_feature.js          [Property search functionality]
+          ├── 7_main.js                    [Main application logic]
+          ├── 8_mapillary_streetview.js    [Street view integration]
+          ├── 9_measurement_tool.js        [Measurement tools]
+          ├── 10_banner_manager.js         [Banner/annotation display]
+          ├── conversion.js                [Coordinate conversion utilities]
+          ├── pole_placement.js            [Pole rendering and placement]
+          ├── ptax_pdf_report.js           [PDF report generation]
+          ├── roadSurvey3D.js              [Road survey visualization]
+          ├── scene.js                     [3D scene setup]
+          └── sewagePipeline.js            [Pipeline visualization]
+
+
+================================================================================
+HOW THE PROJECT WORKS - ARCHITECTURE
+================================================================================
+
+1. FRONTEND - USER INTERFACE
+   ├─ Browser loads index.html with Cesium + Three.js viewers
+   ├─ JavaScript modules initialize in numbered order (1_config → 10_banner)
+   ├─ Cesium creates a 3D map viewer with geospatial capabilities
+   ├─ Three.js loads OBJ/MTL textured 3D property models
+   ├─ Map layers (roads, houses, paths) are overlaid on base map
+   └─ UI provides tools: search, measure, street view, PDF reports
+
+2. BACKEND - SERVER & DATABASE
+   ├─ Express.js server (port 4000) handles HTTP requests
+   ├─ MongoDB stores all data (poles, pipelines, banners, etc.)
+   ├─ Socket.IO enables real-time bidirectional communication
+   ├─ Routes handle CRUD operations for:
+   │  ├─ Poles (CREATE, READ, UPDATE, DELETE)
+   │  ├─ Sewage Pipelines (CREATE, READ, UPDATE, DELETE)
+   │  └─ Banners (Associated with properties)
+   └─ WebSocket events broadcast updates to all connected clients
+
+3. COMMUNICATION FLOW
+   ├─ REST API calls: Frontend → Backend (HTTP)
+   │  └─ Requests: POST /api/poles/add-pole, GET /api/poles, etc.
+   ├─ Real-time Updates: Server → Frontend (WebSocket)
+   │  └─ Events: pole_updated, pipeline_changed, etc.
+   ├─ Geospatial Rendering: 3D data → Cesium/Three.js visualization
+   └─ Coordinate Systems:
+      ├─ Geodetic: Longitude, Latitude, Height (WGS84)
+      └─ Cartesian: X, Y, Z (Legacy support)
+
+4. DATA PERSISTENCE
+   ├─ MongoDB Collections:
+   │  ├─ poles            [Utility poles with geospatial data]
+   │  ├─ sewagepipelines  [Pipeline networks with coordinates]
+   │  └─ banners          [Annotations linked to properties]
+   └─ Features:
+      ├─ Automatic timestamps (createdAt, updatedAt)
+      ├─ Indexed queries for fast lookups
+      └─ Geospatial indexing for location-based queries
+
+
+================================================================================
+API ROUTES & ENDPOINTS
+================================================================================
+
+BASE URL: http://localhost:4000/api
+
+POLE MANAGEMENT ROUTES (/api/poles)
+================================================================================
+
+POST /api/poles/add-pole
+  Description: Add a new utility pole to the database
+  Request Body:
+    {
+      "poleNumber": "P001",              (string, required, unique identifier)
+      "type": "electric",                (enum: electric, light, communication, 
+                                          traffic_signal, cctv_surveillance)
+      "voltage": "11kV",                 (string, optional)
+      "poleHeight": 15.5,                (number, optional, in meters)
+      "wireHeading": 180,                (number, optional, bearing in degrees)
+      "installationDate": "2024-01-15",  (ISO date string, optional)
+      "position": {
+        "longitude": 79.1234,            (number, geodetic coordinates)
+        "latitude": 28.4567,
+        "height": 200                    (elevation in meters)
+      },
+      OR use legacy format:
+      "x": 500, "y": 600, "z": 50        (cartesian coordinates, alternative)
+    }
+  Response:
+    {
+      "success": true,
+      "pole": {
+        "_id": "ObjectId",
+        "poleNumber": "P001",
+        "type": "electric",
+        ...full pole document...
+      }
+    }
+  Status: 201 Created | 400 Bad Request | 500 Server Error
+
+GET /api/poles
+  Description: Retrieve all poles with pagination and filtering
+  Query Parameters:
+    ?page=1&limit=50&type=electric&search=P001
+  Response:
+    {
+      "success": true,
+      "poles": [...array of poles...],
+      "total": 150,
+      "page": 1,
+      "limit": 50
+    }
+  Status: 200 OK | 500 Server Error
+
+GET /api/poles/:poleNumber
+  Description: Retrieve a specific pole by its number
+  Path Parameter: poleNumber = "P001"
+  Response:
+    {
+      "success": true,
+      "pole": {...pole document...}
+    }
+  Status: 200 OK | 404 Not Found
+
+PUT /api/poles/:poleNumber
+  Description: Update an existing pole's properties
+  Request Body: (any fields to update)
+    {
+      "voltage": "22kV",
+      "poleHeight": 16.5,
+      "status": "active"
+    }
+  Response:
+    {
+      "success": true,
+      "pole": {...updated pole document...}
+    }
+  Status: 200 OK | 404 Not Found | 400 Bad Request
+
+DELETE /api/poles/:poleNumber
+  Description: Remove a pole from the database
+  Response:
+    {
+      "success": true,
+      "message": "Pole deleted successfully"
+    }
+  Status: 200 OK | 404 Not Found
+
+
+SEWAGE PIPELINE ROUTES (/api/sewage)
+================================================================================
+
+POST /api/sewage/add
+  Description: Add a new sewage pipeline network
+  Request Body:
+    {
+      "pipelineId": "SEWAGE_01",        (string, required, unique)
+      "diameter": 450,                  (number, in mm, required)
+      "material": "PVC",                (enum: PVC, RCC, HDPE)
+      "status": "Active",               (enum: Planned, Active, Maintenance)
+      "installationDate": "2023-06-01", (ISO date string)
+      "points": [                       (array of coordinates, min 2 points)
+        {
+          "latitude": 28.4567,
+          "longitude": 79.1234,
+          "height": 200
+        },
+        {
+          "latitude": 28.4568,
+          "longitude": 79.1235,
+          "height": 200
+        }
+      ]
+    }
+  Response:
+    {
+      "success": true,
+      "pipeline": {
+        "_id": "ObjectId",
+        "pipelineId": "SEWAGE_01",
+        ...full pipeline document...
+      }
+    }
+  Status: 201 Created | 400 Bad Request
+
+GET /api/sewage
+  Description: Retrieve all sewage pipelines
+  Query Parameters:
+    ?status=Active&material=PVC
+  Response:
+    {
+      "success": true,
+      "pipelines": [...array of pipelines...],
+      "total": 45
+    }
+  Status: 200 OK | 500 Server Error
+
+GET /api/sewage/:pipelineId
+  Description: Retrieve specific pipeline by ID
+  Response:
+    {
+      "success": true,
+      "pipeline": {...pipeline document...}
+    }
+  Status: 200 OK | 404 Not Found
+
+PUT /api/sewage/:pipelineId
+  Description: Update pipeline properties
+  Request Body:
+    {
+      "status": "Maintenance",
+      "diameter": 500
+    }
+  Response:
+    {
+      "success": true,
+      "pipeline": {...updated document...}
+    }
+  Status: 200 OK | 404 Not Found
+
+DELETE /api/sewage/:pipelineId
+  Description: Remove a pipeline
+  Response:
+    {
+      "success": true,
+      "message": "Pipeline deleted"
+    }
+  Status: 200 OK | 404 Not Found
+
+
+WEBSOCKET EVENTS (Real-time Communication)
+================================================================================
+
+Connected Client listens for:
+  • pole_updated       - A pole's data has changed
+  • pole_added         - New pole added
+  • pole_deleted       - Pole removed
+  • pipeline_updated   - Pipeline data changed
+  • pipeline_added     - New pipeline added
+  • banner_updated     - Property annotation changed
+
+Client can emit:
+  • request_pole_update     - Request latest pole data
+  • request_pipeline_update - Request latest pipeline data
+  • broadcast_location      - Share user's current location
+
+
+================================================================================
+DATA MODELS & SCHEMAS
+================================================================================
+
+POLE MODEL (MongoDB Collection: poles)
+================================================================================
+{
+  _id: ObjectId,                    [Auto-generated MongoDB ID]
+  poleNumber: String,               [Unique identifier, required]
+  type: String,                     [electric, light, communication, etc]
+  voltage: String,                  [e.g., "11kV", "22kV"]
+  poleHeight: Number,               [Height in meters]
+  wireHeading: Number,              [Bearing in degrees 0-360]
+  installationDate: Date,           [ISO date of installation]
+  
+  position: {
+    longitude: Number,              [WGS84 longitude]
+    latitude: Number,               [WGS84 latitude]
+    height: Number                  [Elevation above sea level]
+  },
+  
+  x: Number,                        [Legacy cartesian X coordinate]
+  y: Number,                        [Legacy cartesian Y coordinate]
+  z: Number,                        [Legacy cartesian Z coordinate]
+  
+  createdAt: Date,                  [Auto-generated timestamp]
+  updatedAt: Date                   [Auto-updated on modifications]
+}
+
+Pole Type Normalization:
+  Input "Electric Pole" → Normalized to "electric"
+  Input "concrete" → Normalized to "electric"
+  Input "light_pole" → Normalized to "light"
+  Input "CCTV" → Normalized to "cctv_surveillance"
+  Input "traffic signal pole" → Normalized to "traffic_signal"
+
+Supported Pole Types:
+  • electric              [Standard electric transmission/distribution poles]
+  • light                 [Street lighting poles]
+  • communication         [Telecom, fiber optic poles]
+  • traffic_signal        [Traffic management poles]
+  • cctv_surveillance     [Security and monitoring poles]
+
+
+SEWAGE PIPELINE MODEL (MongoDB Collection: sewagepipelines)
+================================================================================
+{
+  _id: ObjectId,                    [Auto-generated MongoDB ID]
+  pipelineId: String,               [Unique identifier, required]
+  diameter: Number,                 [Diameter in mm]
+  material: String,                 [PVC, RCC, or HDPE]
+  status: String,                   [Planned, Active, Maintenance]
+  installationDate: Date,           [ISO date]
+  
+  points: [                         [Array of coordinate points]
+    {
+      latitude: Number,             [WGS84 latitude]
+      longitude: Number,            [WGS84 longitude]
+      height: Number                [Elevation]
+    },
+    ...more points...
+  ],
+  
+  createdAt: Date,                  [Auto-generated timestamp]
+  updatedAt: Date                   [Auto-updated on modifications]
+}
+
+Material Types:
+  • PVC    [Polyvinyl Chloride - most common, cost-effective]
+  • RCC    [Reinforced Cement Concrete - durable]
+  • HDPE   [High-Density Polyethylene - flexible, corrosion-resistant]
+
+Pipeline Statuses:
+  • Planned     [Proposed, not yet implemented]
+  • Active      [Operational and in use]
+  • Maintenance [Under maintenance or repair]
+
+
+BANNER MODEL (MongoDB Collection: banners)
+================================================================================
+{
+  _id: ObjectId,
+  house_id: String,                 [Associated property/house ID]
+  title: String,                    [Banner title]
+  content: String,                  [Banner content/annotation]
+  createdAt: Date,
+  updatedAt: Date
+}
+
+
+================================================================================
+FRONTEND FEATURES & FUNCTIONALITY
+================================================================================
+
+1. 3D VISUALIZATION
+   • Cesium Globe: Geospatial mapping with zoom/pan/rotate
+   • Three.js Models: Textured 3D building models with proper lighting
+   • Real-time Positioning: Updates pole/pipeline locations dynamically
+
+2. LAYER MANAGEMENT
+   • Toggle visibility of different data layers
+   • Roads layer (from roads.kmz)
+   • Houses layer (from HOUSES polygon.kmz)
+   • Custom KML layer support
+   • Pole visualization with type-based colors/icons
+   • Pipeline network visualization with geometry
+
+3. PROPERTY SEARCH
+   • Search properties by name or ID
+   • Filter by location or attributes
+   • Highlight results on map
+   • Display property details and data
+
+4. MEASUREMENT TOOLS
+   • Distance measurement between points
+   • Area calculation for polygons
+   • Height/elevation measurements
+   • Drawing tools for annotations
+
+5. STREET VIEW INTEGRATION
+   • Mapillary street view integration
+   • 360° panoramic views
+   • Navigation between adjacent street views
+
+6. POLE PLACEMENT & MANAGEMENT
+   • Visual pole markers on map
+   • Type-based color coding
+   • Click for detailed information
+   • Real-time sync with backend
+
+7. SEWAGE PIPELINE VISUALIZATION
+   • Pipeline network rendering as lines/geometry
+   • Multiple pipeline types and statuses
+   • Property inspection routes
+   • Maintenance tracking
+
+8. PDF REPORTING
+   • Generate property tax reports (PTAX)
+   • Export survey data to PDF
+   • Custom report generation
+   • Document download functionality
+
+9. BANNERS & ANNOTATIONS
+   • Add notes/annotations to properties
+   • Banner popup displays
+   • Real-time synchronization
+   • Persistent storage
+
+10. CUSTOMIZABLE UI
+    • Collapsible sidebar navigation
+    • Responsive design for different screen sizes
+    • Dark/light theme support
+    • Customizable tool panels
+
+
+================================================================================
+DEVELOPMENT SETUP & RUNNING PROJECT
+================================================================================
+
+PREREQUISITES:
+  • Node.js (v14 or higher)
+  • npm (Node Package Manager)
+  • MongoDB Atlas account (or local MongoDB)
+  • Internet connection for Cesium/Three.js CDN resources
+
+INSTALLATION:
+
+1. Install Backend Dependencies:
+   $ cd backend
+   $ npm install
+
+2. Install Frontend Dependencies (if needed):
+   $ cd frontend
+   $ npm install
+
+3. Configure Environment Variables:
+   Create .env file in backend folder:
+   MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/survey?appName=Cojag
+   PORT=4000
+   NODE_ENV=development
+
+4. Start Backend Server:
+   $ cd backend
+   $ npm start
+   
+   Server runs on: http://localhost:4000
+   WebSocket connects to same address
+   MongoDB connection attempts with retry logic
+
+5. Start Frontend Development Server:
+   Option A: Use Live Server VS Code extension (click "Go Live")
+   Option B: Use python -m http.server 8000 (Python 3)
+   Option C: Use npx http-server
+   
+   Frontend runs on: http://localhost:5500 (or chosen port)
+
+6. Access Application:
+   Open browser: http://localhost:5500 (or your frontend port)
+   Application loads all 3D visualization and starts communicating with backend
+
+IMPORTANT NOTES:
+  • Frontend must know backend URL (check 1_config_globals.js)
+  • Backend port is typically 4000, adjust if conflicts
+  • MongoDB URI can be localhost or remote (MongoDB Atlas)
+  • Cesium and Three.js load from CDN
+  • Socket.IO auto-negotiates connection protocol
+
+DOCKER DEPLOYMENT:
+
+Build and run entire stack:
+  $ docker-compose up --build
+
+This starts:
+  - Frontend container (port 80)
+  - Backend container (port 4000)
+  - MongoDB container (if defined in docker-compose.yml)
+
+
+================================================================================
+KNOWN ISSUES & IMPORTANT CONSIDERATIONS
+================================================================================
+
+1. FRONTEND PORT & API CALLS
+   • Frontend often runs on Live Server (port 5500+)
+   • Frontend must explicitly target http://localhost:4000 for API calls
+   • Relative paths like /api/poles may not work from different port
+   • Solution: Use full URL with explicit backend port
+
+2. COORDINATE SYSTEMS
+   • Poles support both Geodetic (lat/lon/height) and Cartesian (x/y/z)
+   • Geodetic is preferred (WGS84 standard)
+   • Cartesian support is legacy; new data should use Geodetic
+   • Conversions handled in conversion.js module
+
+3. POLE TYPE NORMALIZATION
+   • Pole types automatically normalized to standard values
+   • Examples: "Electric Pole" → "electric", "concrete" → "electric"
+   • Only 5 valid types: electric, light, communication, traffic_signal, cctv_surveillance
+   • Validation happens on backend
+
+4. SEWAGE PIPELINE VALIDATION
+   • Minimum 2 points required for pipeline
+   • All points must have valid latitude (-90 to 90), longitude (-180 to 180)
+   • Height field optional, defaults to 0
+   • Material and status enums are case-sensitive
+
+5. MONGODB CONNECTION
+   • Connection requires working internet and network access
+   • MongoDB Atlas cluster must not be paused
+   • User IP must be whitelisted in MongoDB Atlas
+   • Connection string must include appName parameter
+   • DNS resolution required for mongodb+srv:// URIs
+
+6. REAL-TIME UPDATES
+   • Socket.IO establishes persistent WebSocket connection
+   • Disconnections auto-attempt reconnect
+   • Events broadcast to all connected clients
+   • Check browser console for connection status
+
+
+================================================================================
+PROJECT WORKFLOW & BEST PRACTICES
+================================================================================
+
+ADDING NEW FEATURES:
+
+1. Backend:
+   • Add route handler in appropriate routes/xxxRoutes.js
+   • Implement model methods in models/xxxModel.js
+   • Add WebSocket event in socket.js for real-time updates
+   • Test with Postman/curl before frontend integration
+
+2. Frontend:
+   • Create/modify handler in appropriate js/modules
+   • Add UI controls in index.html
+   • Call API via axios (see 3_utils.js for examples)
+   • Listen for WebSocket events via socket.on()
+   • Test in Cesium/Three.js viewers
+
+3. Database:
+   • MongoDB schemas already defined in server.js and models/
+   • Add new fields to existing schemas as needed
+   • Maintain backward compatibility with existing data
+   • Use timestamps for audit trails
+
+CODE ORGANIZATION:
+  • Frontend scripts numbered 1-10 for load order priority
+  • Separate utility scripts for different concerns
+  • CSS organized by component/feature
+  • Cesium for geospatial, Three.js for 3D models
+  • Single backend entry point (server.js)
+
+TESTING WORKFLOW:
+  1. Test API endpoints with curl/Postman first
+  2. Verify MongoDB saves data correctly
+  3. Check WebSocket broadcasts updates
+  4. Test UI/visualization in browser
+  5. Verify real-time sync between clients
+
+DEPLOYMENT:
+  • Docker setup available for containerization
+  • docker-compose.yml coordinates multiple services
+  • Ensure all environment variables configured
+  • Test all features in staging before production
+
+
+================================================================================
+RECENT DEVELOPMENT WORK (As of Session Date)
+================================================================================
+
+✓ Pole Management System
+  - Full CRUD operations for utility poles
+  - Support for 5 pole types with normalization
+  - Both geodetic and cartesian coordinate support
+  - Real-time positioning updates
+
+✓ Sewage Pipeline System
+  - Pipeline network management with multi-point routes
+  - Material and status tracking
+  - Complex geospatial queries
+  - Proper validation and error handling
+
+✓ 3D Visualization
+  - Cesium.js integration for geospatial mapping
+  - Three.js for textured property models
+  - Layer management system
+  - Interactive property exploration
+
+✓ Real-time Communication
+  - WebSocket infrastructure via Socket.IO
+  - Event broadcasting for live updates
+  - Multiple connected client support
+
+✓ Frontend UI/UX
+  - Responsive design with collapsible navigation
+  - Multiple tool panels (search, measure, street view)
+  - Property tax PDF reporting
+  - Property annotations/banners system
+
+ONGOING/PLANNED:
+  - Performance optimization for large datasets
+  - Advanced filtering and search capabilities
+  - Mobile device support improvements
+  - Enhanced 3D model loading
+  - Batch data import functionality
+  - Advanced analytics dashboard
+
+
+================================================================================
+TROUBLESHOOTING GUIDE
+================================================================================
+
+ISSUE: Backend server crashes on start
+SOLUTION:
+  1. Check MongoDB connection: Ensure cluster is running and not paused
+  2. Verify .env file has correct MONGODB_URI
+  3. Check DNS: Run 'nslookup 1.1.1.1' to verify DNS resolution
+  4. Review error logs for specific MongoDB errors
+  5. Try with local MongoDB first to isolate the issue
+
+ISSUE: Frontend can't connect to backend
+SOLUTION:
+  1. Verify backend is running on port 4000: curl http://localhost:4000
+  2. Check browser console for CORS errors
+  3. Verify API calls use http://localhost:4000, not relative /api paths
+  4. Check firewall/port forwarding if using remote backend
+  5. Verify Socket.IO connection in browser Network tab
+
+ISSUE: 3D models not loading
+SOLUTION:
+  1. Check browser console for loading errors
+  2. Verify model files exist in frontend/files/ directory
+  3. Check OBJLoader/MTLLoader scripts loaded correctly
+  4. Verify file paths match exactly (case-sensitive)
+  5. Check browser's CORS policy allows loading models
+
+ISSUE: Real-time updates not working
+SOLUTION:
+  1. Check Socket.IO connection status in browser console
+  2. Verify WebSocket works: Check Network tab for ws:// protocol
+  3. Ensure server.js imports socket.js handlers
+  4. Check event names match between emit and listen
+  5. Restart both backend and frontend
+
+ISSUE: Poles/Pipelines don't appear on map
+SOLUTION:
+  1. Verify data saved in MongoDB: Query directly via MongoDB Atlas
+  2. Check pole_placement.js and sewagePipeline.js modules
+  3. Verify Cesium viewer initialized properly
+  4. Check coordinate values are within valid ranges
+  5. Verify layer visibility is enabled in UI
+
+ISSUE: PDF generation fails
+SOLUTION:
+  1. Verify jsPDF library loaded: Check Network tab
+  2. Check browser console for jsPDF errors
+  3. Ensure report data populated correctly
+  4. Check PDF permissions and security settings
+  5. Try different browser if issue persists
+
+
+================================================================================
+API USAGE EXAMPLES
+================================================================================
+
+EXAMPLE 1: Add a new electric pole
+  curl -X POST http://localhost:4000/api/poles/add-pole \
+    -H "Content-Type: application/json" \
+    -d '{
+      "poleNumber": "POLE_NEW_001",
+      "type": "Electric",
+      "voltage": "11kV",
+      "poleHeight": 15,
+      "installationDate": "2024-04-27",
+      "position": {
+        "longitude": 79.1234,
+        "latitude": 28.4567,
+        "height": 200
+      }
+    }'
+
+EXAMPLE 2: Get all poles with pagination
+  curl -X GET "http://localhost:4000/api/poles?page=1&limit=20"
+
+EXAMPLE 3: Update pole information
+  curl -X PUT http://localhost:4000/api/poles/POLE_NEW_001 \
+    -H "Content-Type: application/json" \
+    -d '{"voltage": "22kV", "poleHeight": 16}'
+
+EXAMPLE 4: Add sewage pipeline
+  curl -X POST http://localhost:4000/api/sewage/add \
+    -H "Content-Type: application/json" \
+    -d '{
+      "pipelineId": "SEWAGE_ZONE_A",
+      "diameter": 450,
+      "material": "PVC",
+      "status": "Active",
+      "installationDate": "2023-06-01",
+      "points": [
+        {"latitude": 28.4567, "longitude": 79.1234, "height": 200},
+        {"latitude": 28.4568, "longitude": 79.1235, "height": 200}
+      ]
+    }'
+
+EXAMPLE 5: Retrieve specific pipeline
+  curl -X GET http://localhost:4000/api/sewage/SEWAGE_ZONE_A
+
+EXAMPLE 6: Delete a pole
+  curl -X DELETE http://localhost:4000/api/poles/POLE_NEW_001
+
+
+================================================================================
+FILE DESCRIPTIONS - DETAILED
+================================================================================
+
+BACKEND FILES:
+
+server.js
+  • Main Express.js server entry point
+  • Configures CORS, JSON parsing, static file serving
+  • Establishes MongoDB connection
+  • Defines Banner schema (inline)
+  • Initializes WebSocket server via Socket.IO
+  • Mounts route handlers (poles, sewage, etc)
+  • Error handling and graceful shutdown
+
+socket.js
+  • WebSocket event handlers
+  • Manages client connections and disconnections
+  • Broadcasts real-time updates to connected clients
+  • Event types: pole_updated, pipeline_updated, etc.
+  • Handles bidirectional client-server communication
+
+Pole.js (models/)
+  • MongoDB schema definition for poles
+  • Fields: poleNumber, type, voltage, height, position, etc.
+  • Validations and field constraints
+  • Exported as Mongoose model for CRUD operations
+
+SewagePipeline.js (models/)
+  • MongoDB schema definition for sewage pipelines
+  • Fields: pipelineId, diameter, material, status, points[]
+  • Geospatial point array for multi-point pipeline routes
+  • Validations for material and status enums
+
+poleRoutes.js (routes/)
+  • Express route handlers for /api/poles/*
+  • POST /add-pole: Create new pole with validation
+  • GET: Retrieve all poles with filters
+  • GET /:poleNumber: Get specific pole
+  • PUT /:poleNumber: Update pole properties
+  • DELETE /:poleNumber: Remove pole
+  • Pole type normalization logic
+  • Coordinate validation (geodetic or cartesian)
+
+sewageRoutes.js (routes/)
+  • Express route handlers for /api/sewage/*
+  • POST /add: Create new pipeline
+  • GET: Retrieve all pipelines
+  • GET /:pipelineId: Get specific pipeline
+  • PUT /:pipelineId: Update pipeline
+  • DELETE /:pipelineId: Remove pipeline
+  • Point array validation
+  • Material and status validation
+
+
+FRONTEND FILES:
+
+index.html
+  • Main HTML5 document
+  • Includes all CDN libraries (Cesium, Three.js, axios, Socket.IO)
+  • Content Security Policy headers for security
+  • Links all CSS files and JavaScript modules
+  • Contains main viewport containers
+  • Responsive meta tags for mobile support
+
+script.js
+  • Primary JavaScript initialization
+  • Called after all modules loaded
+  • May start Cesium viewer, load data, initialize WebSocket
+
+1_config_globals.js
+  • Global configuration constants
+  • API base URL (http://localhost:4000)
+  • Default map center and zoom levels
+  • Asset paths and URLs
+  • Feature toggles
+
+2_ui_helpers.js
+  • UI manipulation utilities
+  • DOM element creation and management
+  • Event listener setup
+  • Modal/dialog handling
+  • Button and control management
+
+3_utils.js
+  • General utility functions
+  • API call helpers (axios wrappers)
+  • Data transformation utilities
+  • Validation functions
+  • Format/parse helpers
+
+4_model_manager.js
+  • 3D model loading and management
+  • OBJ/MTL loader integration
+  • Three.js mesh creation
+  • Model positioning and orientation
+  • Asset caching and memory management
+
+5_layer_manager.js
+  • Cesium layer management
+  • KML layer parsing and display
+  • Layer visibility toggling
+  • GeoJSON support
+  • Layer ordering and styling
+
+6_search_feature.js
+  • Property search functionality
+  • Search UI and input handling
+  • Result filtering and display
+  • Search highlighting on map
+  • Autocomplete suggestions
+
+7_main.js
+  • Main application logic and control flow
+  • Initializes all modules in sequence
+  • WebSocket connection management
+  • Global event listeners
+  • Application state management
+
+8_mapillary_streetview.js
+  • Mapillary Street View integration
+  • 360° panoramic image loading
+  • Navigation controls
+  • Geolocation handling
+
+9_measurement_tool.js
+  • Distance measurement functionality
+  • Area calculation tools
+  • Drawing interface
+  • Measurement result display
+  • Unit conversion (meters, km, etc.)
+
+10_banner_manager.js
+  • Banner/annotation management
+  • Create, update, delete banners
+  • Banner popup display
+  • Real-time synchronization with server
+  • Persistence handling
+
+conversion.js
+  • Coordinate system conversions
+  • Geodetic ↔ Cartesian transformations
+  • Projection utilities
+  • Distance calculations
+  • Bearing/heading calculations
+
+pole_placement.js
+  • Pole visualization rendering
+  • Type-based icon selection
+  • Color-coding by pole type
+  • Cesium entity creation
+  • Click handlers for pole details
+
+ptax_pdf_report.js
+  • PDF report generation using jsPDF
+  • Property tax report template
+  • Data formatting for reports
+  • PDF download trigger
+  • Report styling and layout
+
+roadSurvey3D.js
+  • Road survey visualization
+  • Road network rendering
+  • Path overlay display
+  • Route analysis tools
+  • Survey data integration
+
+scene.js
+  • Three.js scene initialization
+  • Camera setup and controls
+  • Lighting configuration
+  • Background and atmosphere
+  • Scene management
+
+sewagePipeline.js
+  • Sewage pipeline visualization
+  • Pipeline geometry rendering
+  • Color-coding by status/material
+  • Interactive pipeline selection
+  • Pipeline information display
+
+CSS FILES:
+
+style.css & styles.css & popup.css
+  • Layout and styling for entire application
+  • Responsive design for different screen sizes
+  • UI component styling (buttons, inputs, panels)
+  • Popup and modal styling
+  • Animation and transition effects
+  • Dark/light theme support
+  • Print styles for PDF export
+
+
+================================================================================
+KEY TECHNICAL CONCEPTS
+================================================================================
+
+GEODETIC COORDINATES:
+  • Based on WGS84 (World Geodetic System 1984)
+  • Longitude: -180° to +180° (East-West)
+  • Latitude: -90° to +90° (North-South)
+  • Height/Altitude: Elevation above sea level (meters)
+  • Used by GPS and modern geospatial applications
+  • Preferred format for this project
+
+CARTESIAN COORDINATES:
+  • X, Y, Z coordinate system (Euclidean 3D space)
+  • Legacy support for backward compatibility
+  • X: typically East-West
+  • Y: typically North-South
+  • Z: elevation or depth
+  • Conversion to geodetic via conversion.js
+
+WEBSOCKET (Socket.IO):
+  • Persistent bidirectional communication between client and server
+  • Unlike HTTP (request-response), WebSocket maintains open connection
+  • Enables real-time updates with minimal latency
+  • Auto-reconnection on disconnect
+  • Event-based messaging system
+  • Scales to many concurrent connections
+
+MONGODB & MONGOOSE:
+  • NoSQL document database
+  • Schema validation via Mongoose ODM
+  • Collections: poles, sewagepipelines, banners
+  • Automatic timestamps (createdAt, updatedAt)
+  • Indexing for performance optimization
+  • Geospatial queries possible
+
+3D RENDERING:
+  • Cesium.js: Geospatial globe with map tiles, GIS overlays
+  • Three.js: WebGL 3D graphics, model rendering, custom geometry
+  • Both run simultaneously in same application
+  • Cesium for geographic context
+  • Three.js for detailed 3D objects/buildings
+  • Proper coordinate transformation between systems
+
+
+================================================================================
+END OF DOCUMENTATION
+================================================================================
+
+Created: April 27, 2026
+Last Updated: April 27, 2026
+Project Version: 1.0
+Status: Production Ready
+
+For questions or updates, refer to the route files, models, and frontend
+modules mentioned in this documentation.
+
+================================================================================
