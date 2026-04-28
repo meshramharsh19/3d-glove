@@ -710,6 +710,7 @@
   window.loadPipelines = loadPipelines;
   window.getSewagePipelineSuggestions = getSewagePipelineSuggestions;
   window.ensureSewagePipelineVisible = ensureSewagePipelineVisible;
+  window.getAllSewagePipelines = () => fetchPipelineCatalog();
   window.focusSewagePipelineById = focusSewagePipelineById;
   window.updateSewagePipelineVisibility = updatePipelineVisibility;
 })();

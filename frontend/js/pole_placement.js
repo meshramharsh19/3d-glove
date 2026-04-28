@@ -1207,6 +1207,7 @@
   window.getPoleSuggestions = getPoleSuggestions;
   window.focusPoleByNumber = focusPoleByNumber;
   window.getPoleDataByNumber = getPoleDataByNumber;
+  window.getAllPoleData = () => Array.from(poleDataIndex.values());
   window.showPoleDetailsPanel = showPoleDetailsPanel;
   window.closePoleDetailsPanel = closePoleDetailsPanel;
   window.getPoleTypeLabel = getPoleTypeLabel;

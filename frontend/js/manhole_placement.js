@@ -715,6 +715,7 @@
     return MANHOLE_TYPE_CONFIG[typeKey]?.label || "Manhole";
   };
   window.getManholeDataById = (id) => manholeDataIndex.get(id);
+  window.getAllManholeData = () => Array.from(manholeDataIndex.values());
   window.getFormattedManholeInfo = getFormattedManholeInfo;
   window.ensureManholesLoaded = loadAllManholes;
   window.updateManholeVisibility = updateManholeVisibility;

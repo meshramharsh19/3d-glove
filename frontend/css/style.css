@@ -969,11 +969,12 @@ input[type="range"]::-moz-range-thumb {
   gap: 8px;
 }
 
-.tools-group:last-child .tools-grid {
-  grid-template-columns: repeat(3, 36px);
+.tools-group.survey-tools .tools-grid {
+  grid-template-columns: repeat(2, 36px);
+  justify-content: center;
 }
 
-.tools-group:last-child .rail-btn {
+.tools-group.survey-tools .rail-btn {
   font-size: 15px;
   line-height: 1;
 }
