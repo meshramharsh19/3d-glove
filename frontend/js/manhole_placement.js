@@ -26,33 +26,51 @@
   const MANHOLE_TYPE_CONFIG = {
     sewage: {
       label: "Sewage Manhole",
-      color: "#8b6914",
+      color: "#2a2a2a",        // Dark gray/black - realistic sewage cover
       icon: "🚰",
+      description: "Wastewater collection & treatment",
+      material: "Cast Iron",
+      diameter: 1.2,
     },
     water: {
       label: "Water Manhole",
-      color: "#1e90ff",
+      color: "#b0c4de",        // Light steel blue - water cover
       icon: "💧",
+      description: "Water supply & distribution",
+      material: "Ductile Iron",
+      diameter: 1.0,
     },
     stormwater: {
       label: "Stormwater Manhole",
-      color: "#4169e1",
+      color: "#a9a9a9",        // Dark gray - concrete stormwater
       icon: "🌊",
+      description: "Stormwater drainage & runoff",
+      material: "Reinforced Concrete",
+      diameter: 1.5,
     },
     electrical: {
       label: "Electrical Manhole",
-      color: "#ffa500",
+      color: "#ff8c00",        // Dark orange - electrical cover
       icon: "⚡",
+      description: "Electrical cable & distribution",
+      material: "Composite/Iron",
+      diameter: 0.8,
     },
     communication: {
       label: "Communication Manhole",
-      color: "#228b22",
+      color: "#e8e8e8",        // Light gray/white - comm cover
       icon: "📡",
+      description: "Fiber optics & telecommunications",
+      material: "Plastic/Composite",
+      diameter: 0.6,
     },
     gas: {
       label: "Gas Manhole",
-      color: "#dc143c",
+      color: "#696969",        // Dim gray - gas cover
       icon: "🔥",
+      description: "Gas pipeline & distribution",
+      material: "Cast Iron",
+      diameter: 0.9,
     },
   };
 
@@ -94,6 +112,122 @@
     return `${year}-${month}-${day}`;
   }
 
+  const manholeTextureCache = new Map();
+
+  function getCoverTexture(typeKey, config) {
+    if (manholeTextureCache.has(typeKey)) {
+      return manholeTextureCache.get(typeKey);
+    }
+
+    const size = 256;
+    const canvas = document.createElement("canvas");
+    canvas.width = size;
+    canvas.height = size;
+
+    const ctx = canvas.getContext("2d");
+    const cx = size / 2;
+    const cy = size / 2;
+    const r = size * 0.46;
+
+    ctx.clearRect(0, 0, size, size);
+
+    const base = ctx.createRadialGradient(cx * 0.85, cy * 0.85, size * 0.08, cx, cy, r);
+    base.addColorStop(0, "#ffffff22");
+    base.addColorStop(0.35, config.color);
+    base.addColorStop(1, "#000000cc");
+    ctx.fillStyle = base;
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.strokeStyle = "#00000088";
+    ctx.lineWidth = 8;
+    ctx.beginPath();
+    ctx.arc(cx, cy, r * 0.95, 0, Math.PI * 2);
+    ctx.stroke();
+
+    if (typeKey === "sewage") {
+      ctx.strokeStyle = "#111";
+      ctx.lineWidth = 5;
+      for (let i = 0; i < 14; i += 1) {
+        const a = (Math.PI * 2 * i) / 14;
+        ctx.beginPath();
+        ctx.moveTo(cx + Math.cos(a) * r * 0.35, cy + Math.sin(a) * r * 0.35);
+        ctx.lineTo(cx + Math.cos(a) * r * 0.85, cy + Math.sin(a) * r * 0.85);
+        ctx.stroke();
+      }
+      ctx.fillStyle = "#000000aa";
+      ctx.beginPath();
+      ctx.arc(cx, cy, r * 0.23, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (typeKey === "water") {
+      ctx.strokeStyle = "#7a8b9c";
+      ctx.lineWidth = 3;
+      for (let y = 0; y < 6; y += 1) {
+        for (let x = 0; x < 6; x += 1) {
+          const w = r * 0.22;
+          const h = r * 0.14;
+          const px = cx - r * 0.55 + x * w * 0.95;
+          const py = cy - r * 0.5 + y * h * 1.1;
+          ctx.strokeRect(px, py, w, h);
+        }
+      }
+    } else if (typeKey === "stormwater") {
+      ctx.fillStyle = "#303030cc";
+      for (let y = -3; y <= 3; y += 1) {
+        for (let x = -3; x <= 3; x += 1) {
+          const px = cx + x * (r * 0.22);
+          const py = cy + y * (r * 0.22);
+          if ((px - cx) ** 2 + (py - cy) ** 2 < (r * 0.75) ** 2) {
+            ctx.beginPath();
+            ctx.arc(px, py, r * 0.05, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+      }
+    } else if (typeKey === "electrical") {
+      ctx.strokeStyle = "#4a4a4a";
+      ctx.lineWidth = 2.5;
+      for (let i = -5; i <= 5; i += 1) {
+        const py = cy + i * (r * 0.13);
+        ctx.beginPath();
+        ctx.moveTo(cx - r * 0.65, py);
+        ctx.lineTo(cx + r * 0.65, py);
+        ctx.stroke();
+      }
+      ctx.fillStyle = "#00000077";
+      ctx.fillRect(cx - r * 0.4, cy - r * 0.13, r * 0.8, r * 0.26);
+    } else if (typeKey === "communication") {
+      ctx.strokeStyle = "#7e7e7e";
+      ctx.lineWidth = 2;
+      for (let i = 0; i < 22; i += 1) {
+        const a = (Math.PI * 2 * i) / 22;
+        ctx.beginPath();
+        ctx.moveTo(cx + Math.cos(a) * r * 0.12, cy + Math.sin(a) * r * 0.12);
+        ctx.lineTo(cx + Math.cos(a) * r * 0.8, cy + Math.sin(a) * r * 0.8);
+        ctx.stroke();
+      }
+      ctx.beginPath();
+      ctx.arc(cx, cy, r * 0.28, 0, Math.PI * 2);
+      ctx.stroke();
+    } else if (typeKey === "gas") {
+      ctx.strokeStyle = "#3d3d3d";
+      ctx.lineWidth = 4;
+      ctx.strokeRect(cx - r * 0.7, cy - r * 0.45, r * 1.4, r * 0.9);
+      ctx.lineWidth = 2;
+      for (let x = -4; x <= 4; x += 1) {
+        const px = cx + x * (r * 0.16);
+        ctx.beginPath();
+        ctx.moveTo(px, cy - r * 0.45);
+        ctx.lineTo(px, cy + r * 0.45);
+        ctx.stroke();
+      }
+    }
+
+    manholeTextureCache.set(typeKey, canvas);
+    return canvas;
+  }
+
   function createManholeVisualization(cartesianPosition, manholeType) {
     const typeKey = normalizeManholeType(manholeType);
     const config = MANHOLE_TYPE_CONFIG[typeKey] || MANHOLE_TYPE_CONFIG[DEFAULT_MANHOLE_TYPE];
@@ -105,18 +239,45 @@
 
     const components = [];
 
-    const mainEntity = cesiumViewer.entities.add({
+    // Realistic size variation - diameter in meters from config
+    const radiusMeters = (config.diameter || 1.0) / 2;
+    const topTexture = getCoverTexture(typeKey, config);
+
+    const baseEntity = cesiumViewer.entities.add({
       position: cartesianPosition,
       cylinder: {
-        length: 0.3,
-        topRadius: MANHOLE_RADIUS,
-        bottomRadius: MANHOLE_RADIUS,
-        material: Cesium.Color.fromCssColorString(config.color),
+        length: 0.14,
+        topRadius: radiusMeters * 1.02,
+        bottomRadius: radiusMeters * 1.02,
+        material: Cesium.Color.fromCssColorString("#1f1f1f"),
         outline: true,
-        outlineColor: Cesium.Color.BLACK,
+        outlineColor: Cesium.Color.fromCssColorString("#000000"),
       },
     });
-    components.push(mainEntity);
+    components.push(baseEntity);
+
+    const topEntity = cesiumViewer.entities.add({
+      position: cartesianPosition,
+      ellipse: {
+        semiMajorAxis: radiusMeters,
+        semiMinorAxis: radiusMeters,
+        height: 0,
+        material: new Cesium.ImageMaterialProperty({
+          image: topTexture,
+          transparent: true,
+        }),
+        outline: true,
+        outlineColor: Cesium.Color.fromCssColorString("#000000aa"),
+      },
+      description: `
+        <h3>${config.label}</h3>
+        <p><strong>Type:</strong> ${typeKey}</p>
+        <p><strong>Description:</strong> ${config.description}</p>
+        <p><strong>Material:</strong> ${config.material}</p>
+        <p><strong>Cover Diameter:</strong> ${config.diameter}m</p>
+      `,
+    });
+    components.push(topEntity);
 
     return components;
   }
@@ -176,10 +337,13 @@
     manholeSearchIndex.set(_id, searchableText);
     manholeIdIndex.set(_id, (manholeData.manholeId || "").toLowerCase());
 
+    // Realistic clickable radius based on manhole type diameter
+    const radiusMeters = (config.diameter || 1.0) / 2;
+
     const clickEntity = cesiumViewer.entities.add({
       position: cartesianPosition,
       ellipsoid: {
-        radii: new Cesium.Cartesian3(MANHOLE_RADIUS + 0.1, MANHOLE_RADIUS + 0.1, 0.5),
+        radii: new Cesium.Cartesian3(radiusMeters + 0.1, radiusMeters + 0.1, 0.5),
         material: Cesium.Color.fromCssColorString(config.color).withAlpha(0.1),
         outline: false,
       },
@@ -518,6 +682,28 @@
     }
   };
 
+  // Get formatted info about a manhole
+  function getFormattedManholeInfo(manholeId) {
+    const data = manholeDataIndex.get(manholeId);
+    if (!data) return null;
+
+    const typeKey = normalizeManholeType(data.type);
+    const config = MANHOLE_TYPE_CONFIG[typeKey];
+
+    return {
+      id: data.manholeId,
+      type: config?.label || data.type,
+      description: config?.description || "N/A",
+      material: config?.material || "Unknown",
+      diameter: config?.diameter || data.diameter || "N/A",
+      depth: data.depth || "N/A",
+      status: data.status || "Active",
+      installationDate: data.installationDate ? new Date(data.installationDate).toLocaleDateString() : "N/A",
+      position: data.position ? `${data.position.latitude.toFixed(4)}, ${data.position.longitude.toFixed(4)}` : "N/A",
+      icon: config?.icon || "📌",
+    };
+  }
+
   // Expose global functions
   window.toggleManholeCapture = toggleManholeCapture;
   window.openManholeForm = openManholeForm;
@@ -529,6 +715,7 @@
     return MANHOLE_TYPE_CONFIG[typeKey]?.label || "Manhole";
   };
   window.getManholeDataById = (id) => manholeDataIndex.get(id);
+  window.getFormattedManholeInfo = getFormattedManholeInfo;
   window.ensureManholesLoaded = loadAllManholes;
   window.updateManholeVisibility = updateManholeVisibility;
   window.focusManholeById = focusManholeById;
