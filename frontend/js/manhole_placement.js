@@ -307,6 +307,11 @@
     console.log("📝 Opening manhole form at position:", cartesianPosition);
     manholeFormState.pendingCartesian = cartesianPosition;
 
+    const manholeIdInput = document.getElementById("manholeId");
+    if (manholeIdInput) {
+      manholeIdInput.value = "";
+    }
+
     const typeSelect = document.getElementById("manholeType");
     if (typeSelect) {
       typeSelect.value = DEFAULT_MANHOLE_TYPE;
@@ -314,6 +319,9 @@
     setInputValue("manholeDiameter", "1.0");
     setInputValue("manholeDepth", "2.0");
     setInputValue("manholeInstallationDate", getTodayDateString());
+    setInputValue("manholeMaterial", "concrete");
+    setInputValue("manholeStatus", "Active");
+    setInputValue("manholeDescription", "");
 
     const modal = document.getElementById("manholeModal");
     if (modal) {
@@ -324,7 +332,6 @@
       console.error("❌ Manhole modal element not found");
     }
 
-    const manholeIdInput = document.getElementById("manholeId");
     if (manholeIdInput) {
       window.requestAnimationFrame(() => {
         manholeIdInput.focus();
@@ -386,7 +393,7 @@
     }
 
     return {
-      manholeId,
+      manholeId: manholeId.replace(/\s+/g, " ").trim(),
       type,
       diameter,
       depth,

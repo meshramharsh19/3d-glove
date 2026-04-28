@@ -48,6 +48,13 @@ router.post("/add-manhole", async (req, res) => {
       notes,
     } = req.body;
 
+    if (!manholeId || typeof manholeId !== "string" || !manholeId.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: "Manhole ID is required",
+      });
+    }
+
     const normalizedType = normalizeManholeType(type);
 
     const hasGeodeticPosition =
@@ -133,6 +140,19 @@ router.post("/add-manhole", async (req, res) => {
       manhole,
     });
   } catch (error) {
+    if (error && error.code === 11000) {
+      const duplicateField = Object.keys(error.keyPattern || {})[0] || "manholeId";
+      const duplicateValue = error.keyValue?.[duplicateField] ?? "unknown";
+
+      return res.status(409).json({
+        success: false,
+        message: `Manhole with ID "${duplicateValue}" already exists. Please use a different ID.`,
+        error: "DUPLICATE_ID",
+        field: duplicateField,
+        value: duplicateValue,
+      });
+    }
+
     return res.status(500).json({
       success: false,
       message: "Failed to save manhole",
