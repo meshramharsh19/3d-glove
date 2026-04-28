@@ -970,8 +970,8 @@ input[type="range"]::-moz-range-thumb {
 }
 
 .tools-group.survey-tools .tools-grid {
-  grid-template-columns: repeat(2, 36px);
-  justify-content: center;
+  grid-template-columns: repeat(4, 36px);
+  justify-content: start;
 }
 
 .tools-group.survey-tools .rail-btn {

@@ -203,7 +203,7 @@
 
     btn.classList.remove("capture-active");
     if (areaPointsCartesian.length >= 3) {
-      btn.textContent = "📄";
+      btn.textContent = "📥";
       btn.title = "Download Area Report";
       btn.setAttribute("aria-label", "Download Area Report");
       return;
@@ -553,88 +553,206 @@
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
     const margin = 40;
-    const lineGap = 16;
     let cursorY = margin;
 
-    const addLine = (text = "", fontSize = 10, isBold = false) => {
-      if (cursorY > pageHeight - margin) {
+    const ensureSpace = (heightNeeded = 24) => {
+      if (cursorY + heightNeeded > pageHeight - margin) {
         doc.addPage();
         cursorY = margin;
       }
-
-      doc.setFont("helvetica", isBold ? "bold" : "normal");
-      doc.setFontSize(fontSize);
-      const wrapped = doc.splitTextToSize(String(text), pageWidth - margin * 2);
-      doc.text(wrapped, margin, cursorY);
-      cursorY += wrapped.length * (lineGap - 2);
-      cursorY += 4;
     };
 
-    addLine("Selected Area Infrastructure Report", 16, true);
-    addLine(`Generated on: ${new Date().toLocaleString()}`, 10, false);
-    addLine("", 8, false);
+    const drawHeader = (title) => {
+      ensureSpace(30);
+      doc.setFillColor(14, 52, 84);
+      doc.rect(margin, cursorY - 14, pageWidth - margin * 2, 24, "F");
+      doc.setTextColor(255, 255, 255);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.text(title, margin + 8, cursorY + 2);
+      doc.setTextColor(0, 0, 0);
+      cursorY += 20;
+    };
 
-    addLine("Area Summary", 12, true);
-    addLine(`Total Area (sq.m): ${report.areaSqM.toFixed(2)}`);
-    addLine(`Total Area (sq.km): ${(report.areaSqM / 1000000).toFixed(4)}`);
-    addLine(`Properties: ${report.properties.length}`);
-    addLine(`Poles: ${report.poles.length}`);
-    addLine(`Pipelines: ${report.pipelines.length}`);
-    addLine(`Manholes: ${report.manholes.length}`);
-    addLine("", 8, false);
+    const drawWrappedText = (text, x, y, width, bold = false, size = 9) => {
+      doc.setFont("helvetica", bold ? "bold" : "normal");
+      doc.setFontSize(size);
+      const lines = doc.splitTextToSize(String(text ?? ""), width);
+      doc.text(lines, x, y);
+      return Math.max(1, lines.length);
+    };
 
-    addLine("Boundary Coordinates", 12, true);
-    if (report.boundary.length === 0) {
-      addLine("No boundary points found.");
-    } else {
-      report.boundary.forEach((point, index) => {
-        addLine(`${index + 1}. Lat: ${point.latitude.toFixed(6)}, Lon: ${point.longitude.toFixed(6)}`);
+    const drawSummaryRow = (label, value) => {
+      ensureSpace(18);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(10);
+      doc.text(label, margin + 10, cursorY);
+      doc.setFont("helvetica", "normal");
+      doc.text(String(value), margin + 180, cursorY);
+      cursorY += 16;
+    };
+
+    const drawTable = (columns, rows) => {
+      const tableWidth = pageWidth - margin * 2;
+      const colWidths = columns.map((col) => Math.floor(tableWidth * col.width));
+      const minRowHeight = 18;
+
+      const drawTableHeader = () => {
+        ensureSpace(24);
+        doc.setFillColor(232, 240, 250);
+        doc.rect(margin, cursorY - 12, tableWidth, 18, "F");
+        let x = margin;
+        columns.forEach((column, idx) => {
+          doc.setDrawColor(180, 193, 210);
+          doc.rect(x, cursorY - 12, colWidths[idx], 18);
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(8.5);
+          doc.text(column.label, x + 4, cursorY);
+          x += colWidths[idx];
+        });
+        cursorY += 18;
+      };
+
+      drawTableHeader();
+
+      if (!rows || rows.length === 0) {
+        ensureSpace(20);
+        doc.setFont("helvetica", "italic");
+        doc.setFontSize(9);
+        doc.text("No records found", margin + 4, cursorY);
+        cursorY += 16;
+        return;
+      }
+
+      rows.forEach((row) => {
+        let maxLines = 1;
+        columns.forEach((column, idx) => {
+          const text = column.get(row);
+          const lines = doc.splitTextToSize(String(text ?? ""), colWidths[idx] - 8);
+          maxLines = Math.max(maxLines, lines.length);
+        });
+
+        const rowHeight = Math.max(minRowHeight, maxLines * 11 + 6);
+        ensureSpace(rowHeight + 4);
+
+        let x = margin;
+        columns.forEach((column, idx) => {
+          doc.setDrawColor(210, 220, 232);
+          doc.rect(x, cursorY - 12, colWidths[idx], rowHeight);
+          const linesUsed = drawWrappedText(
+            column.get(row),
+            x + 4,
+            cursorY,
+            colWidths[idx] - 8,
+            false,
+            8.5
+          );
+          if (linesUsed === 0) {
+            drawWrappedText("-", x + 4, cursorY, colWidths[idx] - 8, false, 8.5);
+          }
+          x += colWidths[idx];
+        });
+
+        cursorY += rowHeight;
       });
-    }
-    addLine("", 8, false);
 
-    addLine("Properties Inside Area", 12, true);
-    if (report.properties.length === 0) {
-      addLine("No properties found.");
-    } else {
-      report.properties.forEach((item, index) => {
-        addLine(`${index + 1}. ${item.propertyNumber || "N/A"} | ${item.owner || "N/A"} | ${item.usage || "N/A"}`);
-      });
-    }
-    addLine("", 8, false);
+      cursorY += 6;
+    };
 
-    addLine("Poles Inside Area", 12, true);
-    if (report.poles.length === 0) {
-      addLine("No poles found.");
-    } else {
-      report.poles.forEach((item, index) => {
-        const lat = Number.isFinite(item.position?.latitude) ? item.position.latitude.toFixed(6) : "N/A";
-        const lon = Number.isFinite(item.position?.longitude) ? item.position.longitude.toFixed(6) : "N/A";
-        addLine(`${index + 1}. ${item.poleNumber || "N/A"} | ${item.type || "N/A"} | ${item.voltage || "N/A"} | ${lat}, ${lon}`);
-      });
-    }
-    addLine("", 8, false);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(16);
+    doc.text("Selected Area Infrastructure Report", margin, cursorY);
+    cursorY += 20;
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.text(`Generated on: ${new Date().toLocaleString()}`, margin, cursorY);
+    cursorY += 18;
 
-    addLine("Pipelines Crossing/Inside Area", 12, true);
-    if (report.pipelines.length === 0) {
-      addLine("No pipelines found.");
-    } else {
-      report.pipelines.forEach((item, index) => {
-        addLine(`${index + 1}. ${item.pipelineId || item._id || "N/A"} | ${item.diameter || "N/A"}mm | ${item.material || "N/A"} | ${item.status || "N/A"}`);
-      });
-    }
-    addLine("", 8, false);
+    drawHeader("Area Summary");
+    drawSummaryRow("Total Area (sq.m)", report.areaSqM.toFixed(2));
+    drawSummaryRow("Total Area (sq.km)", (report.areaSqM / 1000000).toFixed(4));
+    drawSummaryRow("Properties", report.properties.length);
+    drawSummaryRow("Poles", report.poles.length);
+    drawSummaryRow("Pipelines", report.pipelines.length);
+    drawSummaryRow("Manholes", report.manholes.length);
+    cursorY += 4;
 
-    addLine("Manholes Inside Area", 12, true);
-    if (report.manholes.length === 0) {
-      addLine("No manholes found.");
-    } else {
-      report.manholes.forEach((item, index) => {
-        const lat = Number.isFinite(item.position?.latitude) ? item.position.latitude.toFixed(6) : "N/A";
-        const lon = Number.isFinite(item.position?.longitude) ? item.position.longitude.toFixed(6) : "N/A";
-        addLine(`${index + 1}. ${item.manholeId || "N/A"} | ${item.type || "N/A"} | ${item.material || "N/A"} | ${lat}, ${lon}`);
-      });
-    }
+    drawHeader("Boundary Coordinates");
+    drawTable(
+      [
+        { label: "#", width: 0.1, get: (row) => row.index },
+        { label: "Latitude", width: 0.45, get: (row) => row.latitude },
+        { label: "Longitude", width: 0.45, get: (row) => row.longitude },
+      ],
+      report.boundary.map((point, idx) => ({
+        index: idx + 1,
+        latitude: point.latitude.toFixed(6),
+        longitude: point.longitude.toFixed(6),
+      }))
+    );
+
+    drawHeader("Properties Inside Area");
+    drawTable(
+      [
+        { label: "Property", width: 0.2, get: (row) => row.propertyNumber || "N/A" },
+        { label: "Owner", width: 0.35, get: (row) => row.owner || "N/A" },
+        { label: "Usage", width: 0.2, get: (row) => row.usage || "N/A" },
+        { label: "Address", width: 0.25, get: (row) => row.address || "N/A" },
+      ],
+      report.properties
+    );
+
+    drawHeader("Poles Inside Area");
+    drawTable(
+      [
+        { label: "Pole No.", width: 0.16, get: (row) => row.poleNumber || "N/A" },
+        { label: "Type", width: 0.2, get: (row) => row.type || "N/A" },
+        { label: "Voltage", width: 0.16, get: (row) => row.voltage || "N/A" },
+        {
+          label: "Latitude",
+          width: 0.24,
+          get: (row) => Number.isFinite(row.position?.latitude) ? row.position.latitude.toFixed(6) : "N/A",
+        },
+        {
+          label: "Longitude",
+          width: 0.24,
+          get: (row) => Number.isFinite(row.position?.longitude) ? row.position.longitude.toFixed(6) : "N/A",
+        },
+      ],
+      report.poles
+    );
+
+    drawHeader("Pipelines Crossing / Inside Area");
+    drawTable(
+      [
+        { label: "Pipeline ID", width: 0.28, get: (row) => row.pipelineId || row._id || "N/A" },
+        { label: "Diameter (mm)", width: 0.18, get: (row) => row.diameter || "N/A" },
+        { label: "Material", width: 0.2, get: (row) => row.material || "N/A" },
+        { label: "Status", width: 0.18, get: (row) => row.status || "N/A" },
+        { label: "Points", width: 0.16, get: (row) => Array.isArray(row.points) ? row.points.length : 0 },
+      ],
+      report.pipelines
+    );
+
+    drawHeader("Manholes Inside Area");
+    drawTable(
+      [
+        { label: "Manhole ID", width: 0.2, get: (row) => row.manholeId || "N/A" },
+        { label: "Type", width: 0.2, get: (row) => row.type || "N/A" },
+        { label: "Material", width: 0.2, get: (row) => row.material || "N/A" },
+        {
+          label: "Latitude",
+          width: 0.2,
+          get: (row) => Number.isFinite(row.position?.latitude) ? row.position.latitude.toFixed(6) : "N/A",
+        },
+        {
+          label: "Longitude",
+          width: 0.2,
+          get: (row) => Number.isFinite(row.position?.longitude) ? row.position.longitude.toFixed(6) : "N/A",
+        },
+      ],
+      report.manholes
+    );
 
     doc.save(`area-infra-report-${formatDateForFilename()}.pdf`);
   }
