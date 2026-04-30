@@ -5,6 +5,30 @@
 ⚡ QUICK REFERENCE (IN SHORT)
 ================================================================================
 
+CHANGELOG (VERSIONED)
+--------------------------------------------------------------------------------
+
+v1.4.0 (2026-04-29)
+  ✓ Area selection + infrastructure report workflow added
+  ✓ Single smart Survey button state flow (start/finalize/download)
+  ✓ Double-click auto finalize + auto download + auto close selection
+  ✓ Report export moved to PDF (jsPDF)
+  ✓ PDF layout upgraded to structured/professional report format
+
+v1.3.0 (2026-04-28)
+  ✓ Realistic manhole visualization upgraded (type-based colors, sizes, textured look)
+  ✓ Survey tools alignment refined in tools panel
+
+v1.2.0 (2026-04-28)
+  ✓ Manhole save flow hardened with stronger validation handling
+  ✓ Duplicate/invalid ID handling improved for save operations
+
+v1.1.0 (2026-04-28)
+  ✓ Responsive layout improved for mobile/tablet
+  ✓ Sidebar mobile behavior updated to overlay-drawer style
+  ✓ Map viewport stability improved under topbar
+  ✓ Compact topbar/search controls for small screens
+
 WHAT IS IT?
   Urban survey platform: 3D property viewing + pole/sewage management
 
@@ -30,6 +54,56 @@ RUNNING PROJECT:
     $ cd frontend
     $ npx http-server --port 5500
     → Open http://localhost:5500 in browser
+
+RUN COMMANDS (COPY/PASTE)
+================================================================================
+
+OPTION A: LOCAL (2 TERMINALS)
+
+  Terminal 1 (Backend):
+    cd backend
+    npm install
+    npm start
+
+  Terminal 2 (Frontend):
+    cd frontend
+    npx http-server --port 5500
+
+  URLs:
+    Backend API: http://localhost:4000
+    Frontend:    http://localhost:5500
+
+
+OPTION B: ROOT + BACKEND
+
+  Terminal 1 (Root):
+    npm install
+
+  Terminal 2 (Backend):
+    cd backend
+    npm install
+    npm start
+
+
+OPTION C: DOCKER (FULL STACK)
+
+  From project root:
+    docker-compose up --build
+
+  Run in background:
+    docker-compose up -d --build
+
+  Stop containers:
+    docker-compose down
+
+
+QUICK CHECK COMMANDS
+
+  Check backend health (PowerShell):
+    Invoke-WebRequest -Method GET -Uri "http://localhost:4000/api/manholes/get-manholes" -UseBasicParsing
+
+  Check backend health (bash):
+    curl http://localhost:4000/api/manholes/get-manholes
 
 MAIN ROUTES:
 
