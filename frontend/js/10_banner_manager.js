@@ -673,15 +673,15 @@ function positionBannerUi() {
   const topbarBottom = topbar ? topbar.getBoundingClientRect().bottom : 62;
   const minTop = Math.round(topbarBottom + 8);
   let sectionTop = Math.round(topbarBottom + 14);
-  let rightOffset = 16;
+  let rightOffset = 20;
 
   if (rail) {
     const railRect = rail.getBoundingClientRect();
+    const safeGap = 24;
+    rightOffset = Math.max(20, Math.round(window.innerWidth - railRect.left + safeGap));
 
-    rightOffset = Math.max(16, Math.round(window.innerWidth - railRect.left + 12));
-
-    // Keep the cart in upper area while still avoiding toolbar overlap.
-    sectionTop = Math.max(minTop, Math.round(topbarBottom + 12));
+    // Keep section below right-side controls so it doesn't visually stack over them.
+    sectionTop = Math.max(minTop, Math.round(railRect.bottom + 10));
   }
 
   section.style.right = `${rightOffset}px`;
@@ -707,6 +707,14 @@ function showBannerDetails(banner) {
       "Date: " +
       banner.date
   );
+}
+
+function closeBannerSection() {
+  const section = document.getElementById("bannerSection");
+  if (!section) return;
+
+  section.classList.remove("banner-visible");
+  section.classList.remove("banner-opening");
 }
 
 function formatBannerDate(rawDate) {
@@ -745,4 +753,5 @@ function pickValue(obj, keys) {
 window.showAddBannerButton = showAddBannerButton;
 window.openBannerModal = openBannerModal;
 window.closeBannerModal = closeBannerModal;
+window.closeBannerSection = closeBannerSection;
 window.saveBanner = saveBanner;

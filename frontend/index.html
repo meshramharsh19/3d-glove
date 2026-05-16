@@ -713,6 +713,16 @@
       });
     });
 
+    mapToolsDock?.addEventListener("toggle", () => {
+      if (!mapToolsDock.open) {
+        return;
+      }
+
+      if (typeof window.closeBannerSection === "function") {
+        window.closeBannerSection();
+      }
+    });
+
     document.addEventListener("click", (event) => {
       if (!mapToolsDock?.open) {
         return;

@@ -749,13 +749,22 @@
     }
 
     const bannerSection = document.getElementById("bannerSection");
+    const rail = document.querySelector(".map-rail");
     const topbar = document.getElementById("topbar");
 
     const topbarBottom = topbar ? topbar.getBoundingClientRect().bottom : 62;
     const baseTop = Math.round(topbarBottom + 14);
     const minTop = Math.round(topbarBottom + 8);
+    let rightOffset = 64;
 
     let sectionTop = baseTop;
+
+    if (rail) {
+      const railRect = rail.getBoundingClientRect();
+      const safeGap = 24;
+      rightOffset = Math.max(20, Math.round(window.innerWidth - railRect.left + safeGap));
+      sectionTop = Math.max(sectionTop, Math.round(railRect.bottom + 10));
+    }
 
     if (bannerSection && bannerSection.classList.contains("banner-visible")) {
       const bannerRect = bannerSection.getBoundingClientRect();
@@ -767,7 +776,7 @@
     sectionTop = Math.max(minTop, Math.min(sectionTop, maxSectionTop));
 
     section.style.top = `${sectionTop}px`;
-    section.style.right = "64px";
+    section.style.right = `${rightOffset}px`;
   }
 
   function schedulePoleSectionPosition() {
