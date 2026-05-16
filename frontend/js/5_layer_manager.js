@@ -43,22 +43,73 @@ function getCustomHouseData(idOrEntity) {
     id = idOrEntity != null ? String(idOrEntity) : null;
   }
   if (!id) return null;
-  if (window.ptaxDatabase && window.ptaxDatabase[id]) return window.ptaxDatabase[id];
-  if (window.ptaxDatabase) {
-    const cand = String(id).trim();
-    const candNum = cand.replace(/[^0-9A-Za-z\-_]/g, "");
-    if (window.ptaxDatabase[candNum]) return window.ptaxDatabase[candNum];
-    for (const key in window.ptaxDatabase) {
-      if (!window.ptaxDatabase.hasOwnProperty(key)) continue;
-      try {
-        const rec = window.ptaxDatabase[key];
-        if (!rec) continue;
-        const pn = rec['Property Number'] || rec.propertyNumber || rec['propertyNumber'] || rec.propertyNo || rec._id;
-        if (!pn) continue;
-        if (String(pn) === String(id) || String(pn) === candNum) return rec;
-      } catch (e) {}
-    }
+  const db = window.ptaxDatabase || null;
+  if (!db) return null;
+
+  const cand = String(id).trim();
+  const candNum = cand.replace(/[^0-9A-Za-z\-_]/g, '');
+  const candLower = cand.toLowerCase();
+  const compactLower = candNum.toLowerCase();
+
+  if (db[id]) return db[id];
+  if (db[cand]) return db[cand];
+  if (db[candNum]) return db[candNum];
+
+  const recordFields = [
+    'Property Number',
+    'propertyNumber',
+    'propertyNo',
+    '_id',
+    'Name of the Property Owner',
+    'ownerName',
+    'Name of the Property',
+    'propertyName',
+    'Address of Property',
+    'propertyAddress',
+    'address',
+  ];
+
+  const normalizeText = (value) => String(value == null ? '' : value).trim().toLowerCase();
+
+  for (const key in db) {
+    if (!Object.prototype.hasOwnProperty.call(db, key)) continue;
+
+    try {
+      const rec = db[key];
+      if (!rec) continue;
+
+      const candidateValues = recordFields
+        .map((field) => rec[field])
+        .filter((value) => value !== undefined && value !== null)
+        .map((value) => String(value).trim());
+
+      const directMatch = candidateValues.some((value) => {
+        const normalized = value.toLowerCase();
+        const compact = value.replace(/[^0-9A-Za-z\-_]/g, '').toLowerCase();
+        return (
+          normalized === candLower ||
+          normalized === compactLower ||
+          compact === candLower ||
+          compact === compactLower
+        );
+      });
+
+      if (directMatch) return rec;
+
+      const looseMatch = candidateValues.some((value) => {
+        const normalized = normalizeText(value);
+        return (
+          normalized.includes(candLower) ||
+          candLower.includes(normalized) ||
+          normalized.includes(compactLower) ||
+          compactLower.includes(normalized)
+        );
+      });
+
+      if (looseMatch) return rec;
+    } catch (e) {}
   }
+
   return null;
 }
 // --- END ---

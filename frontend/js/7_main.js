@@ -61,6 +61,34 @@ const handler =
     viewer.scene.canvas
   );
 
+function handleHouseSelection(clickedEntity) {
+  if (!clickedEntity) {
+    return;
+  }
+
+  const propertyData = getCustomHouseData(clickedEntity);
+
+  addPinAndFlyToEntity(
+    clickedEntity,
+    propertyData
+  );
+
+  // ✅ SHOW BUTTON
+  showAddBannerButton(clickedEntity);
+}
+
+function isHouseLikeEntity(clickedEntity) {
+  if (!clickedEntity || !(clickedEntity instanceof Cesium.Entity)) {
+    return false;
+  }
+
+  if (housesDataSource && housesDataSource.entities.contains(clickedEntity)) {
+    return true;
+  }
+
+  return Boolean(getCustomHouseData(clickedEntity));
+}
+
 handler.setInputAction(function (click) {
 
   // 1️⃣ Detect clicked object
@@ -91,21 +119,8 @@ handler.setInputAction(function (click) {
       pickedObject.id;
 
     // 3️⃣ If house clicked
-    if (
-      housesDataSource &&
-      housesDataSource.entities.contains(clickedEntity)
-    ) {
-
-      const propertyData =
-        getCustomHouseData(clickedEntity);
-
-      addPinAndFlyToEntity(
-        clickedEntity,
-        propertyData
-      );
-
-      // ✅ SHOW BUTTON
-      showAddBannerButton(clickedEntity);
+    if (isHouseLikeEntity(clickedEntity)) {
+      handleHouseSelection(clickedEntity);
 
     }
 
@@ -149,6 +164,22 @@ handler.setInputAction(function (click) {
 
 },
 Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+handler.setInputAction(function (click) {
+  const pickedObject = viewer.scene.pick(click.position);
+
+  if (
+    Cesium.defined(pickedObject) &&
+    Cesium.defined(pickedObject.id) &&
+    pickedObject.id instanceof Cesium.Entity
+  ) {
+    const clickedEntity = pickedObject.id;
+
+    if (isHouseLikeEntity(clickedEntity)) {
+      handleHouseSelection(clickedEntity);
+    }
+  }
+}, Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
 // === END: NAYA ON-CLICK PIN FEATURE ===
 
 // ================================
