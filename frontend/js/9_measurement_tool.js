@@ -8,8 +8,6 @@ let activeMode = null;
 let positions = [];
 let activeShape = null;
 let pointEntities = [];
-// Global flag used to pause global click handlers while measuring
-window.measurementActive = false;
 
 /* ---------- INIT ---------- */
 function initMeasurementTool(viewer) {
@@ -18,7 +16,6 @@ function initMeasurementTool(viewer) {
     return;
   }
   measureHandler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
-  window.measurementActive = false;
 }
 
 /* ---------- COMMON HELPERS ---------- */
@@ -55,8 +52,6 @@ function resetMeasurement() {
   if (typeof clearMeasurePanel === "function") {
     clearMeasurePanel();
   }
-  // ensure global handlers resume
-  window.measurementActive = false;
 }
 
 /* ================================
@@ -64,7 +59,6 @@ function resetMeasurement() {
    ================================ */
 function startDistanceMeasure() {
   resetMeasurement();
-  window.measurementActive = true;
   activeMode = "DISTANCE";
 
   measureHandler.setInputAction((click) => {
@@ -93,8 +87,6 @@ function startDistanceMeasure() {
       measureHandler.removeInputAction(
         Cesium.ScreenSpaceEventType.LEFT_CLICK
       );
-      // measurement finished — allow global handlers again
-      window.measurementActive = false;
     }
   }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 }
@@ -106,7 +98,6 @@ function startDistanceMeasure() {
    ================================ */
 function startAreaMeasure() {
   resetMeasurement();
-  window.measurementActive = true;
   activeMode = "AREA";
 
   measureHandler.setInputAction((click) => {
@@ -139,8 +130,6 @@ function startAreaMeasure() {
 
     measureHandler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
     measureHandler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
-    // measurement finished — allow global handlers again
-    window.measurementActive = false;
   }, Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
 }
 
@@ -169,7 +158,6 @@ function calculatePolygonArea(cartesianPositions) {
    ================================ */
 function startHeightMeasure() {
   resetMeasurement();
-  window.measurementActive = true;
   activeMode = "HEIGHT";
 
   measureHandler.setInputAction((click) => {
@@ -197,8 +185,6 @@ function startHeightMeasure() {
       measureHandler.removeInputAction(
         Cesium.ScreenSpaceEventType.LEFT_CLICK
       );
-      // measurement finished — allow global handlers again
-      window.measurementActive = false;
     }
   }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 }

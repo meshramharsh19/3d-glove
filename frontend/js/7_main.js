@@ -91,12 +91,6 @@ function isHouseLikeEntity(clickedEntity) {
 
 handler.setInputAction(function (click) {
 
-  // Ignore clicks while a measurement tool is active to avoid accidental
-  // house-selection / layer toggles triggered by measurement clicks.
-  if (window.measurementActive) {
-    return;
-  }
-
   // 1️⃣ Detect clicked object
   const pickedObject =
     viewer.scene.pick(click.position);
@@ -172,10 +166,6 @@ handler.setInputAction(function (click) {
 Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
 handler.setInputAction(function (click) {
-  // Prevent double-click house selection when measuring
-  if (window.measurementActive) {
-    return;
-  }
   const pickedObject = viewer.scene.pick(click.position);
 
   if (
